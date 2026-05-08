@@ -7,10 +7,15 @@
 	Client-side election system. Handles UI, vote submission, and event listening.
 ]]
 
-local ElectionSystem = require(game:GetService("ServerScriptService").ElectionSystem)
-local Types = ElectionSystem.Types
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SharedFolder = ReplicatedStorage:WaitForChild("ElectionSystemShared")
+local Types = require(SharedFolder:WaitForChild("Types"))
+local ElectionUI = require(script.Parent:WaitForChild("ElectionUI"):WaitForChild("ElectionUI"))
 
 local ElectionClient = {}
+local mountedUi: any = nil
+local remoteFolder: Folder? = nil
+local initialized = false
 
 --[[
 	@method init
@@ -19,45 +24,51 @@ local ElectionClient = {}
 	Initializes the client election system.
 ]]
 function ElectionClient.init()
-	local remoteFolder = game:GetService("ReplicatedStorage"):WaitForChild("ElectionSystemRemotes")
+	if initialized then
+		return
+	end
+	initialized = true
+
+	remoteFolder = ReplicatedStorage:WaitForChild("ElectionSystemRemotes") :: Folder
+	mountedUi = ElectionUI.mount()
 
 	-- Listen for phase changes
-	local phaseChangedEvent = remoteFolder:WaitForChild("PhaseChanged")
+	local phaseChangedEvent = remoteFolder:WaitForChild("PhaseChanged") :: RemoteEvent
 	phaseChangedEvent.OnClientEvent:Connect(function(newPhase)
 		print("[ElectionClient] Phase changed:", newPhase)
 		ElectionClient.onPhaseChanged(newPhase)
 	end)
 
 	-- Listen for ballot open
-	local ballotOpenedEvent = remoteFolder:WaitForChild("BallotOpened")
+	local ballotOpenedEvent = remoteFolder:WaitForChild("BallotOpened") :: RemoteEvent
 	ballotOpenedEvent.OnClientEvent:Connect(function()
 		print("[ElectionClient] Ballot opened")
 		ElectionClient.onBallotOpened()
 	end)
 
 	-- Listen for results
-	local resultsEvent = remoteFolder:WaitForChild("ResultsPublished")
+	local resultsEvent = remoteFolder:WaitForChild("ResultsPublished") :: RemoteEvent
 	resultsEvent.OnClientEvent:Connect(function(results)
 		print("[ElectionClient] Results received")
 		ElectionClient.onResultsReceived(results)
 	end)
 
 	-- Listen for already voted
-	local alreadyVotedEvent = remoteFolder:WaitForChild("AlreadyVoted")
+	local alreadyVotedEvent = remoteFolder:WaitForChild("AlreadyVoted") :: RemoteEvent
 	alreadyVotedEvent.OnClientEvent:Connect(function()
 		print("[ElectionClient] Already voted notification")
 		ElectionClient.onAlreadyVoted()
 	end)
 
 	-- Listen for ineligible
-	local ineligibleEvent = remoteFolder:WaitForChild("IneligibleResult")
+	local ineligibleEvent = remoteFolder:WaitForChild("IneligibleResult") :: RemoteEvent
 	ineligibleEvent.OnClientEvent:Connect(function(reason)
 		print("[ElectionClient] Ineligible:", reason)
 		ElectionClient.onIneligible(reason)
 	end)
 
 	-- Listen for alt detection
-	local altDetectedEvent = remoteFolder:WaitForChild("AltDetectedClient")
+	local altDetectedEvent = remoteFolder:WaitForChild("AltDetectedClient") :: RemoteEvent
 	altDetectedEvent.OnClientEvent:Connect(function()
 		print("[ElectionClient] Alt detected - showing kick screen")
 		ElectionClient.onAltDetected()
@@ -72,7 +83,9 @@ end
 	@param phase ElectionPhase
 ]]
 function ElectionClient.onPhaseChanged(phase: Types.ElectionPhase)
-	-- TODO: Update UI based on phase
+	if mountedUi then
+		mountedUi:setPhase(phase)
+	end
 end
 
 --[[
@@ -80,7 +93,9 @@ end
 	@within ElectionClient
 ]]
 function ElectionClient.onBallotOpened()
-	-- TODO: Show ballot UI
+	if mountedUi then
+		mountedUi:showBallot()
+	end
 end
 
 --[[
@@ -89,7 +104,9 @@ end
 	@param results ElectionResult
 ]]
 function ElectionClient.onResultsReceived(results: Types.ElectionResult)
-	-- TODO: Show results UI
+	if mountedUi then
+		mountedUi:showResults(results)
+	end
 end
 
 --[[
@@ -97,7 +114,9 @@ end
 	@within ElectionClient
 ]]
 function ElectionClient.onAlreadyVoted()
-	-- TODO: Show "Already Voted" screen
+	if mountedUi then
+		mountedUi:showAlreadyVoted()
+	end
 end
 
 --[[
@@ -106,7 +125,9 @@ end
 	@param reason string
 ]]
 function ElectionClient.onIneligible(reason: string)
-	-- TODO: Show ineligible screen with reason
+	if mountedUi then
+		mountedUi:showIneligible(reason)
+	end
 end
 
 --[[
@@ -114,7 +135,9 @@ end
 	@within ElectionClient
 ]]
 function ElectionClient.onAltDetected()
-	-- TODO: Show kick screen with countdown
+	if mountedUi then
+		mountedUi:showKick()
+	end
 end
 
 --[[
@@ -124,17 +147,17 @@ end
 	@return boolean
 ]]
 function ElectionClient.submitVote(ballot: Types.Ballot): boolean
-	local remoteFolder = game:GetService("ReplicatedStorage"):FindFirstChild("ElectionSystemRemotes")
-	if not remoteFolder then return false end
+	if not remoteFolder then
+		return false
+	end
 
 	local submitVoteFunc = remoteFolder:FindFirstChild("SubmitVote")
-	if not submitVoteFunc then return false end
+	if not submitVoteFunc or not submitVoteFunc:IsA("RemoteFunction") then
+		return false
+	end
 
 	local success = submitVoteFunc:InvokeServer(ballot)
-	return success
+	return success == true
 end
-
--- Auto-initialize when script loads
-ElectionClient.init()
 
 return ElectionClient

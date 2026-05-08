@@ -9,25 +9,51 @@
 
 local ElectionSystem = require(game:GetService("ServerScriptService").ElectionSystem)
 local CollectionService = game:GetService("CollectionService")
+local CmdrSetup = require(game:GetService("ServerScriptService").ElectionSystem.Cmdr.CmdrSetup)
 
 local ResultsPart = {}
+local RESULTS_TAG = "ResultsPart"
 
 -- Setup results display
 function ResultsPart.setup()
-	-- Find all ResultsPart tagged parts
-	local parts = CollectionService:GetTagged("ResultsPart")
+	local parts = CollectionService:GetTagged(RESULTS_TAG)
+	if #parts == 0 then
+		local part = Instance.new("Part")
+		part.Name = "ElectionResultsBoard"
+		part.Size = Vector3.new(16, 10, 1)
+		part.Anchored = true
+		part.Position = Vector3.new(0, 8, -16)
+		part.Parent = workspace
+		CollectionService:AddTag(part, RESULTS_TAG)
+		parts = CollectionService:GetTagged(RESULTS_TAG)
+	end
 
 	for _, part in ipairs(parts) do
 		if part:IsA("BasePart") then
-			setupResultsDisplay(part)
+			setupResultsDisplay(part :: Part)
 		end
 	end
+
+	CollectionService:GetInstanceAddedSignal(RESULTS_TAG):Connect(function(instance)
+		if instance:IsA("BasePart") then
+			setupResultsDisplay(instance :: Part)
+		end
+	end)
 end
 
 function setupResultsDisplay(part: Part)
+	local existing = part:FindFirstChild("ElectionResultsSurface")
+	if existing and existing:IsA("SurfaceGui") then
+		existing:Destroy()
+	end
+
 	-- Create SurfaceGui
 	local surfaceGui = Instance.new("SurfaceGui")
+	surfaceGui.Name = "ElectionResultsSurface"
 	surfaceGui.Face = Enum.NormalId.Front
+	surfaceGui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	surfaceGui.PixelsPerStud = 35
+	surfaceGui.AlwaysOnTop = true
 	surfaceGui.Parent = part
 
 	-- Create main frame
@@ -57,6 +83,7 @@ function setupResultsDisplay(part: Part)
 
 	-- Update results when they change
 	local function updateResults()
+		resultsContainer:ClearAllChildren()
 		local results = ElectionSystem:getResults()
 		if not results then
 			-- Show "Calculating..." placeholder
@@ -70,11 +97,9 @@ function setupResultsDisplay(part: Part)
 			return
 		end
 
-		-- Clear container
-		resultsContainer:ClearAllChildren()
-
 		-- Display vote counts per candidate
 		local y = 0
+		local mode = CmdrSetup.getChartMode()
 		for candidateId, voteShare in pairs(results.voteShare) do
 			local entryLabel = Instance.new("TextLabel")
 			entryLabel.Size = UDim2.new(1, 0, 0.15, 0)
@@ -83,7 +108,7 @@ function setupResultsDisplay(part: Part)
 			entryLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 			entryLabel.TextSize = 14
 			entryLabel.Font = Enum.Font.Gotham
-			entryLabel.Text = candidateId .. ": " .. string.format("%.1f%%", voteShare)
+			entryLabel.Text = string.format("[%s] %s: %.1f%%", mode, candidateId, voteShare)
 			entryLabel.BorderSizePixel = 0
 			entryLabel.Parent = resultsContainer
 
@@ -91,10 +116,12 @@ function setupResultsDisplay(part: Part)
 		end
 	end
 
-	-- Listen for results updates
-	local remote = game:GetService("ReplicatedStorage"):WaitForChild("ElectionSystemRemotes")
-	local resultsEvent = remote:WaitForChild("ResultsPublished")
-	resultsEvent.OnServerEvent:Connect(updateResults)
+	local store = ElectionSystem:getStore()
+	store.dataChanged:connect(function(key)
+		if key == "resultsCache" then
+			updateResults()
+		end
+	end)
 
 	-- Initial update
 	updateResults()

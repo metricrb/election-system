@@ -135,6 +135,7 @@ export type VoteRecord = {
 	timestamp: number,
 	roundId: number?,
 	partyVote: string?, -- for party-based methods (PR, MMP)
+	districtId: string?,
 }
 
 -- Winner result from a voting method

@@ -3,6 +3,7 @@
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
 local Store = require(script.Parent.Store)
+local DistrictManager = require(script.Parent.DistrictManager)
 
 -- Load all voting methods
 local FPTP = require(script.Parent.VotingMethods.FPTP)
@@ -75,6 +76,19 @@ function ResultCalculator.calculate(votingMethod: string, ballots: { Types.Ballo
 		roundHistory = winnerResult.roundHistory,
 		calculatedAt = os.time(),
 	}
+end
+
+function ResultCalculator.calculateByDistrict(votingMethod: string, voteRecords: { Types.VoteRecord }, store: Store): { [string]: Types.ElectionResult }
+	local resultsByDistrict: { [string]: Types.ElectionResult } = {}
+	for _, district in ipairs(Settings.districts) do
+		local districtVotes = DistrictManager.getDistrictVotes(district.districtId, voteRecords)
+		local ballots: { Types.Ballot } = {}
+		for _, vote in ipairs(districtVotes) do
+			table.insert(ballots, vote.ballot)
+		end
+		resultsByDistrict[district.districtId] = ResultCalculator.calculate(votingMethod, ballots, store)
+	end
+	return resultsByDistrict
 end
 
 return ResultCalculator

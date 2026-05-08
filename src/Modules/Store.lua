@@ -78,12 +78,13 @@ end
 
 	Records a vote for a player.
 ]]
-function Store:recordVote(userId: string, ballot: Types.Ballot, roundId: number?): ()
+function Store:recordVote(userId: string, ballot: Types.Ballot, roundId: number?, districtId: string?): ()
 	self._data.voteRecords[userId] = {
 		userId = userId,
 		ballot = ballot,
 		timestamp = os.time(),
 		roundId = roundId,
+		districtId = districtId,
 	}
 	self:set("voteRecords", self._data.voteRecords)
 end

@@ -6,6 +6,6 @@ realm = "shared"
 
 [dev-dependencies]
 Fusion = "elttob/fusion@0.3.0"
-ProfileService = "madstudioroblox/profileservice@1.0.0"
+ProfileService = "firebird702/profileservice@1.1.0"
 Cmdr = "evaera/cmdr@1.11.0"
 TestEZ = "roblox/testez@0.4.1"

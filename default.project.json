@@ -7,13 +7,37 @@
       "Packages": {
         "$className": "Folder",
         "$path": "Packages"
+      },
+      "ElectionSystemShared": {
+        "$className": "Folder",
+        "$path": "src/shared"
       }
     },
 
     "ServerScriptService": {
       "ElectionSystem": {
-        "$path": "src",
-        "$className": "ModuleScript"
+        "$path": "src/init.module.lua",
+        "Modules": {
+          "$path": "src/Modules"
+        },
+        "shared": {
+          "$path": "src/shared"
+        },
+        "client": {
+          "$path": "src/client"
+        },
+        "Cmdr": {
+          "$path": "src/Cmdr"
+        },
+        "Example": {
+          "$path": "src/Example"
+        },
+        "Settings": {
+          "$path": "src/Settings.lua"
+        },
+        "Signal": {
+          "$path": "src/Signal.lua"
+        }
       }
     },
 
@@ -22,10 +46,7 @@
         "$className": "Folder"
       },
       "StarterPlayerScripts": {
-        "ElectionSystemClient": {
-          "$path": "src/Client",
-          "$className": "LocalScript"
-        }
+        "$path": "src/client"
       }
     },
 
