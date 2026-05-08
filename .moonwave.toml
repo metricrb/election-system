@@ -1,0 +1,26 @@
+title = "ElectionSystem"
+description = "A universal, modular election system for Roblox supporting 14 voting methods and multiple electoral structures."
+subtitle = "Universal Roblox Election System"
+
+navbar = [
+  { name = "GitHub", url = "https://github.com/metricrb/election-system" },
+]
+
+classOrder = [
+  "ElectionManager",
+  "VotingMethod",
+  "ElectionConfig",
+  "Candidate",
+  "Party",
+]
+
+classGroups = [
+  { name = "Core", classes = ["ElectionManager"] },
+  { name = "Types", classes = ["ElectionConfig", "Candidate", "Party", "Ballot", "VoteRecord"] },
+  { name = "Electoral Systems", classes = ["SeatAllocator", "DistrictManager", "CoalitionSystem"] },
+]
+
+output = "docs"
+pathPattern = "src/**.lua"
+sourceUrl = "https://github.com/metricrb/election-system/blob/{branch}/{path}#{line}"
+gitBranch = "main"
