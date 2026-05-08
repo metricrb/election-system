@@ -24,9 +24,9 @@ TimestampManager.__index = TimestampManager
 ]]
 function TimestampManager.new(): any
 	local self = setmetatable({}, TimestampManager) :: any
-	self._currentPhase = "Scheduled" :: Types.ElectionPhase
 	self._lastPhaseTime = os.time()
 	self.PhaseChanged = Signal.new()
+	self._currentPhase = (self :: any):_derivePhase() :: Types.ElectionPhase
 
 	-- Start heartbeat monitor
 	task.spawn(function()
@@ -76,7 +76,8 @@ end
 	Returns the current election phase.
 ]]
 function TimestampManager:getPhase(): Types.ElectionPhase
-	return self._currentPhase
+	-- Always derive from wall clock so API/state are not up to one heartbeat behind.
+	return self:_derivePhase()
 end
 
 --[[

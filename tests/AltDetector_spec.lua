@@ -8,7 +8,7 @@ return function()
 		it("returns a structured result", function()
 			local store = Store.new()
 			local fakePlayer = { AccountAge = 999, Name = "Tester" }
-			local result = AltDetector.detect(store, "123", fakePlayer :: any)
+			local result = AltDetector.detect(store, "123", fakePlayer :: any, nil)
 			expect(type(result.flagged)).to.equal("boolean")
 			expect(type(result.reason)).to.equal("string")
 		end)

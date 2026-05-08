@@ -57,6 +57,20 @@ local METHODS: { [string]: any } = {
 
 	Calculates election results using the specified voting method.
 ]]
+--[[
+	@function validateBallot
+	@within ResultCalculator
+
+	Uses the active Settings.votingMethod implementation's validateBallot when present.
+]]
+function ResultCalculator.validateBallot(ballot: Types.Ballot): { valid: boolean, reason: string }
+	local method = METHODS[Settings.votingMethod]
+	if not method or not method.validateBallot then
+		return { valid = true, reason = "OK" }
+	end
+	return method.validateBallot(ballot, Settings)
+end
+
 function ResultCalculator.calculate(votingMethod: string, ballots: { Types.Ballot }, store: Store): Types.ElectionResult
 	local method = METHODS[votingMethod]
 	if not method then

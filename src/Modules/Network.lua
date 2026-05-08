@@ -17,7 +17,7 @@ function Network.init()
 	remoteFolder.Name = "ElectionSystemRemotes"
 	remoteFolder.Parent = game:GetService("ReplicatedStorage")
 
-	-- Create server → client events
+	-- Server → client
 	Network.createRemoteEvent("PhaseChanged")
 	Network.createRemoteEvent("BallotOpened")
 	Network.createRemoteEvent("ResultsPublished")
@@ -25,10 +25,13 @@ function Network.init()
 	Network.createRemoteEvent("AlreadyVoted")
 	Network.createRemoteEvent("AltDetectedClient")
 	Network.createRemoteEvent("IneligibleResult")
+	Network.createRemoteEvent("DebugElectionToggle")
 
-	-- Create client → server events
+	-- Client ↔ server (RemoteFunctions)
 	Network.createRemoteFunction("SubmitVote")
 	Network.createRemoteFunction("RequestState")
+	Network.createRemoteFunction("RequestElectionConfig")
+	Network.createRemoteFunction("RequestDebugState")
 end
 
 function Network.createRemoteEvent(name: string)

@@ -93,6 +93,8 @@ export type UiConfig = {
 
 -- Master election configuration
 export type ElectionConfig = {
+	-- Change each Studio run when batch-testing (see Settings header); echoed in server prints.
+	testRunId: string?,
 	countryId: string,
 	votingMethod: VotingMethod,
 	governmentType: GovernmentType,
@@ -106,6 +108,9 @@ export type ElectionConfig = {
 
 	openAt: number,
 	closeAt: number,
+
+	-- When true, removes this player's persisted + in-memory vote on join so they can vote again (Studio / QA). **Never use in production live elections.**
+	clearPlayerVoteOnJoin: boolean,
 
 	eligibility: EligibilityConfig,
 	altDetection: AltDetectionConfig,

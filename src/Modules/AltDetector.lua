@@ -4,6 +4,7 @@ local Signal = require(script.Parent.Parent.Signal)
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
 local Store = require(script.Parent.Store)
+local Diagnostics = require(script.Parent.ElectionDiagnostics)
 
 --[[
 	@class AltDetector
@@ -23,7 +24,7 @@ local Store = require(script.Parent.Store)
 local AltDetector = {}
 
 export type AltDetector = {
-	detect: (store: Store, userId: string, player: Player) -> Types.AltFlagResult,
+	detect: (store: Store, userId: string, player: Player, priorVoteRecord: Types.VoteRecord?) -> Types.AltFlagResult,
 	AltDetected: Signal.Signal<string>,
 }
 
@@ -39,7 +40,12 @@ local AltDetected = Signal.new()
 
 	Analyzes player account for suspicious behavior based on configured heuristic.
 ]]
-function AltDetector.detect(store: Store, userId: string, player: Player): Types.AltFlagResult
+function AltDetector.detect(
+	store: Store,
+	userId: string,
+	player: Player,
+	priorVoteRecord: Types.VoteRecord?
+): Types.AltFlagResult
 	if not Settings.altDetection.enabled then
 		return {
 			flagged = false,
@@ -61,15 +67,12 @@ function AltDetector.detect(store: Store, userId: string, player: Player): Types
 		end
 	end
 
-	-- Check rapid voting heuristic
-	if heuristic == "rapid" or heuristic == "both" then
-		local voteRecord = store:getVoteRecord(userId)
-		if voteRecord then
-			local timeSinceLastVote = os.time() - voteRecord.timestamp
-			if timeSinceLastVote < Settings.altDetection.rapidVoteThresholdSeconds then
-				flagged = true
-				reason = "Rapid voting detected (" .. tostring(timeSinceLastVote) .. "s since last vote)"
-			end
+	-- Compare time since a *prior* ballot only — post-record checks read the new vote and delta is ~0s.
+	if (heuristic == "rapid" or heuristic == "both") and priorVoteRecord then
+		local timeSinceLastVote = os.time() - priorVoteRecord.timestamp
+		if timeSinceLastVote < Settings.altDetection.rapidVoteThresholdSeconds then
+			flagged = true
+			reason = "Rapid voting detected (" .. tostring(timeSinceLastVote) .. "s since last vote)"
 		end
 	end
 
@@ -87,11 +90,23 @@ function AltDetector.detect(store: Store, userId: string, player: Player): Types
 	store:logAltDetection(userId, true)
 	AltDetected:fire(userId)
 
+	local shouldKick = Settings.altDetection.onDetect == "KickWithScreen"
+	local shouldInvalidate = Settings.altDetection.onDetect == "InvalidateVote"
+	Diagnostics.log(
+		("ALT FLAG userId=%s reason=%s onDetect=%s shouldKick=%s shouldInvalidate=%s (Ban/Kick UI is client; no Roblox BanService call in this package)"):format(
+			userId,
+			reason,
+			tostring(Settings.altDetection.onDetect),
+			tostring(shouldKick),
+			tostring(shouldInvalidate)
+		)
+	)
+
 	return {
 		flagged = true,
 		reason = reason,
-		shouldKick = Settings.altDetection.onDetect == "KickWithScreen",
-		shouldInvalidate = Settings.altDetection.onDetect == "InvalidateVote",
+		shouldKick = shouldKick,
+		shouldInvalidate = shouldInvalidate,
 	}
 end
 

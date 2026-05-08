@@ -86,15 +86,16 @@ end
 	Waits for the signal to fire and returns the arguments.
 ]]
 function Signal:wait<T...>(): T...
-	local event = self:connect(function(...)
-		event:disconnect()
+	local waitingThread = coroutine.running()
+	assert(waitingThread ~= nil, "Signal:wait() must be called from a coroutine")
+
+	local connection: Connection
+	connection = self:connect(function(...)
+		connection:disconnect()
+		task.spawn(waitingThread, ...)
 	end)
 
-	local success, result = coroutine.resume(coroutine.create(function()
-		return script.Parent -- placeholder yield
-	end))
-
-	return ...
+	return coroutine.yield()
 end
 
 --[[

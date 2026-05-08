@@ -8,13 +8,38 @@
 	Players can use a ProximityPrompt to start voting.
 ]]
 
-local ElectionSystem = require(game:GetService("ServerScriptService").ElectionSystem)
+local ServerScriptService = game:GetService("ServerScriptService")
+local electionHolder = ServerScriptService:WaitForChild("ElectionSystem", 30)
+assert(electionHolder and electionHolder:IsA("ModuleScript"), "[VotingBooth] ElectionSystem module missing.")
+local ElectionSystem = require(electionHolder :: ModuleScript)
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local VotingBooth = {}
 local REMOTE_FOLDER_NAME = "ElectionSystemRemotes"
 local BOOTH_TAG = "VotingBooth"
+local initializedRemotes = false
+
+local function getRemotesFolder(): Folder?
+	local remotes = ReplicatedStorage:FindFirstChild(REMOTE_FOLDER_NAME)
+	if remotes and remotes:IsA("Folder") then
+		return remotes
+	end
+
+	-- Ensure core module initialization happened before players use a booth.
+	if not initializedRemotes then
+		initializedRemotes = true
+		ElectionSystem.init()
+	end
+
+	local awaited = ReplicatedStorage:WaitForChild(REMOTE_FOLDER_NAME, 3)
+	if awaited and awaited:IsA("Folder") then
+		return awaited
+	end
+
+	warn("[VotingBooth] ElectionSystemRemotes folder not found.")
+	return nil
+end
 
 -- Find or create voting booth part
 local function setupVotingBooth(part: Part)
@@ -32,13 +57,26 @@ local function setupVotingBooth(part: Part)
 		prompt.ObjectText = "Election Booth"
 		prompt.MaxActivationDistance = 10
 		prompt.RequiresLineOfSight = false
-		prompt.HoldDuration = 0.25
 		prompt.Parent = part
 	end
+	-- 0 = no hold (tap E once). Non-zero breaks Studio MCP / automation that sends a short key press.
+	prompt.HoldDuration = 0
 
 	prompt.Triggered:Connect(function(player)
-		local remotes = ReplicatedStorage:FindFirstChild(REMOTE_FOLDER_NAME)
+		local remotes = getRemotesFolder()
 		if not remotes then
+			return
+		end
+
+		local phase = ElectionSystem:getPhase()
+		if phase ~= "Open" then
+			local ineligibleEvent = remotes:FindFirstChild("IneligibleResult")
+			if ineligibleEvent and ineligibleEvent:IsA("RemoteEvent") then
+				ineligibleEvent:FireClient(
+					player,
+					"Voting is currently closed. Current phase: " .. tostring(phase)
+				)
+			end
 			return
 		end
 
@@ -46,11 +84,12 @@ local function setupVotingBooth(part: Part)
 		if not eligibility.eligible then
 			local ineligibleEvent = remotes:FindFirstChild("IneligibleResult")
 			if ineligibleEvent and ineligibleEvent:IsA("RemoteEvent") then
-				ineligibleEvent:FireClient(player, eligibility.reason)
+				ineligibleEvent:FireClient(player, tostring(eligibility.reason))
 			end
 			return
 		end
 
+		ElectionSystem:hydrateVoteFromDataStore(player)
 		if ElectionSystem:getStore():hasVoted(tostring(player.UserId)) then
 			local alreadyVotedEvent = remotes:FindFirstChild("AlreadyVoted")
 			if alreadyVotedEvent and alreadyVotedEvent:IsA("RemoteEvent") then

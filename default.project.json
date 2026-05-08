@@ -6,7 +6,7 @@
     "ReplicatedStorage": {
       "Packages": {
         "$className": "Folder",
-        "$path": "Packages"
+        "$path": "DevPackages"
       },
       "ElectionSystemShared": {
         "$className": "Folder",
@@ -46,7 +46,12 @@
         "$className": "Folder"
       },
       "StarterPlayerScripts": {
-        "$path": "src/client"
+        "ClientModules": {
+          "$path": "src/client"
+        },
+        "ElectionSystemClient": {
+          "$path": "src/client_bootstrap"
+        }
       }
     },
 

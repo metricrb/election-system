@@ -2,6 +2,7 @@
 
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
+local Diagnostics = require(script.Parent.ElectionDiagnostics)
 
 --[[
 	@class EligibilityChecker
@@ -32,6 +33,9 @@ function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	-- Check 1: Banned usernames (case-insensitive)
 	for _, bannedName in ipairs(config.bannedUsernames) do
 		if string.lower(player.Name) == string.lower(bannedName) then
+			Diagnostics.log(
+				("ELIGIBILITY deny user=%s reason=BANNED_USERNAME match=%s"):format(player.Name, bannedName)
+			)
 			return {
 				eligible = false,
 				reason = "Your username is on the banned list.",
@@ -43,6 +47,13 @@ function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	for _, bannedGroupId in ipairs(config.bannedGroupIds) do
 		local rank = player:GetRankInGroup(bannedGroupId)
 		if rank > 0 then
+			Diagnostics.log(
+				("ELIGIBILITY deny user=%s reason=BANNED_GROUP groupId=%s rank=%s"):format(
+					player.Name,
+					tostring(bannedGroupId),
+					tostring(rank)
+				)
+			)
 			return {
 				eligible = false,
 				reason = "Your group membership disqualifies you from voting.",
@@ -54,6 +65,13 @@ function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	if config.minGroupRank.groupId > 0 then
 		local rank = player:GetRankInGroup(config.minGroupRank.groupId)
 		if rank < config.minGroupRank.minRank then
+			Diagnostics.log(
+				("ELIGIBILITY deny user=%s reason=MIN_GROUP_RANK need=%s have=%s"):format(
+					player.Name,
+					tostring(config.minGroupRank.minRank),
+					tostring(rank)
+				)
+			)
 			return {
 				eligible = false,
 				reason = "You do not meet the minimum group rank requirement.",
@@ -65,6 +83,13 @@ function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	if config.minAccountAgeDays > 0 then
 		local accountAgeDays = player.AccountAge
 		if accountAgeDays < config.minAccountAgeDays then
+			Diagnostics.log(
+				("ELIGIBILITY deny user=%s reason=MIN_ACCOUNT_AGE needDays=%s haveDays=%s"):format(
+					player.Name,
+					tostring(config.minAccountAgeDays),
+					tostring(accountAgeDays)
+				)
+			)
 			return {
 				eligible = false,
 				reason = "Your account is too new. Minimum age: " .. tostring(config.minAccountAgeDays) .. " days.",
