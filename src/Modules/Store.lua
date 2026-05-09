@@ -114,6 +114,22 @@ function Store:hasVoted(userId: string): boolean
 end
 
 --[[
+	@method seedVoteFromData
+	@within Store
+	@param userId string
+	@param voteRecord Types.VoteRecord
+
+	Merges a persisted vote into memory if this session has no record yet.
+]]
+function Store:seedVoteFromData(userId: string, voteRecord: Types.VoteRecord): ()
+	if self._data.voteRecords[userId] ~= nil then
+		return
+	end
+	self._data.voteRecords[userId] = voteRecord
+	self:set("voteRecords", self._data.voteRecords)
+end
+
+--[[
 	@method removeVote
 	@within Store
 	@param userId string

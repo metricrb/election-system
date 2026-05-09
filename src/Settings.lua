@@ -18,78 +18,248 @@ local Types = require(script.Parent.shared.Types)
 ]]
 local Settings: Types.ElectionConfig = {
 
+	--[[
+		MCP / Studio batch test protocol
+		-------------------------
+		1) Edit **both** `testRunId` and `countryId` so each run is unique in the Output window.
+		2) Save → Rojo sync → **quit & reopen Studio once** (fresh DataModel / server) after changes on disk.
+		3) Single-ballot matrix: keep `votingMethod` **out of** `"MMP"` and `"Parallel"` (dual UI). Test those in a separate pass.
+		4) Rotate through: FPTP, TwoRound, IRV, Approval, Score, STAR, STV, PartyListPR, Condorcet, Borda, Cumulative, Sortition
+		   (Some methods need UI your client does not implement — watch `BALLOT_INVALID` prints.)
+		5) “Ban API” here = eligibility only (no Roblox BanService): use `bannedUsernames`, `bannedGroupIds`, `minAccountAgeDays`, `altDetection.enabled`.
+		6) Duplicate vote: submit twice → `DUPLICATE_VOTE (dual voting not permitted)`.
+
+		Prefix in Output: `[ElectionSystem:<testRunId or countryId>]`
+	]]
+
+	-- Identifiers (change every run — new `countryId` = separate saved votes in ProfileService)
+	testRunId = "retest-003-20260508",
+	countryId = "sandbox_election_sess_003",
+
 	-- ELECTION METADATA
-	countryId = "nation", -- Unique identifier for this election config/profile bucket (example: "uk_2026")
-	votingMethod = "FPTP", -- One of: FPTP, TwoRound, IRV, Approval, Score, STAR, STV, PartyListPR, MMP, Parallel, Condorcet, Borda, Cumulative, Sortition
-	governmentType = "Presidential", -- One of: Presidential, Parliamentary, SemiPresidential, ConstitutionalMonarchy
-	seatSystem = "SingleMemberDistrict", -- One of: SingleMemberDistrict, MultiMemberDistrict, AtLarge, Federal
-	seats = 1, -- Number of seats to fill (use >1 for PR/STV/MMP/Parallel style elections)
-	threshold = 0, -- Percent threshold for parties/candidates where applicable (example: 5 means 5%)
-	runoffThreshold = 50, -- Percent needed to avoid runoff in TwoRound systems
-	compulsoryVoting = false, -- If true, your gameplay layer can enforce/track required voting
-	electoralCollege = false, -- Toggle if you are modeling an electoral college layer
-	seatAllocationMethod = "DHondt", -- One of: DHondt, SainteLague, HareNiemeyer (used in seat allocation flows)
+	votingMethod = "IRV", -- Retest rotation (was FPTP): still works with single pick + rank in UI
+	governmentType = "Presidential", -- Retest: distinct from Parliamentary
+	seatSystem = "MultiMemberDistrict", -- Multiple seats
+	seats = 8, -- 8 parliamentary seats
+	threshold = 5, -- 5% threshold for seat allocation
+	runoffThreshold = 50, -- Not used in MMP but kept for config structure
+	compulsoryVoting = false,
+	electoralCollege = false,
+	seatAllocationMethod = "DHondt", -- D'Hondt apportionment (Europe standard)
 
 	-- TIMESTAMPS (Unix seconds, UTC)
-	openAt = 0, -- Voting start time (example: 1767225600)
-	closeAt = 0, -- Voting end time (must be greater than openAt)
+	-- **Voting open:** `now >= openAt` and `now < closeAt` ⇒ phase `Open`. To close: set `closeAt` in the past.
+	openAt = os.time() - 60, -- Opened 1 minute ago
+	closeAt = os.time() + 86400, -- Closes in 24 hours
 
-	-- ELIGIBILITY
+	-- **Studio / QA only:** wipe this player's saved vote every join so you can vote again without Cmdr reset.
+	-- Set **false** for any real election (live game).
+	clearPlayerVoteOnJoin = false,
+
+	-- ELIGIBILITY (PLAYTEST: groupId 0 skips group check; minAccountAgeDays 0 skips age)
 	eligibility = {
-		minGroupRank = { groupId = 0, minRank = 0 }, -- Set groupId > 0 to enable; player rank must be >= minRank
-		minAccountAgeDays = 0, -- Minimum Roblox account age in days; set 0 to disable
-		bannedGroupIds = {}, -- Any membership in these groups blocks voting (example: {123456, 654321})
-		bannedUsernames = {}, -- Exact username blocklist, case-insensitive
+		minGroupRank = { groupId = 0, minRank = 1 }, -- Set groupId to 7412080 + minRank 1 for production RoAntarctica gate
+		minAccountAgeDays = 0, -- Set to 7 for production minimum account age
+		bannedGroupIds = {}, -- No ban groups for this election
+		bannedUsernames = {}, -- No username bans
 	},
 
 	-- ALT DETECTION
 	altDetection = {
-		enabled = false, -- Master toggle for post-vote alt checks
-		onDetect = "KickWithScreen", -- One of: KickWithScreen, InvalidateVote
-		heuristic = "age", -- One of: age, rapid, both
-		kickDelaySeconds = 5, -- Delay before kick screen action resolves
-		banDuration = -1, -- Ban duration in seconds if your ban path uses it; -1 commonly means permanent
-		banReason = "Election fraud: alternative account detected.", -- Message shown/logged for moderation action
-		rapidVoteThresholdSeconds = 60, -- If heuristic includes rapid: votes too close together are flagged
+		enabled = true, -- Set true for production; false avoids false positives during rapid Studio playtests
+		onDetect = "InvalidateVote", -- Silently remove suspect votes
+		heuristic = "both", -- Check both account age AND rapid voting
+		kickDelaySeconds = 5,
+		banDuration = -1, -- Not used with InvalidateVote but kept
+		banReason = "Election integrity: account flagged for suspicious activity.",
+		rapidVoteThresholdSeconds = 120, -- Flag if votes within 2 minutes
 	},
 
-	-- PARTIES
+	-- PARTIES: 4-party system for realistic parliamentary dynamics
 	parties = {
 		{
-			partyId = "party_a", -- Stable unique ID used by candidates and seat allocation
-			name = "Example Party", -- Display name in UI/results
-			decalId = 0, -- Roblox image asset id (number only, no "rbxassetid://" prefix)
-			colour = { r = 220, g = 36, b = 36 }, -- RGB values 0-255 used for charts/cards
-			description = "", -- Optional manifesto/description text
+			partyId = "explorers_union",
+			name = "Explorers Union",
+			decalId = 0, -- Replace with actual party logo decal ID
+			colour = { r = 220, g = 36, b = 36 }, -- Red
+			description = "Focused on Antarctic research and discovery expansion",
 		},
-	},
-
-	-- CANDIDATES
-	candidates = {
 		{
-			candidateId = "candidate_1", -- Stable unique ID referenced by ballots/results
-			userId = "0", -- Roblox UserId as string (example: "12345678")
-			partyId = "party_a", -- Set nil for independent candidates
-			name = "", -- Display name
-			bio = "", -- Candidate biography/summary
-			policyTags = {}, -- Short labels (example: {"Economy", "Healthcare"})
+			partyId = "conservation_party",
+			name = "Conservation Party",
+			decalId = 0,
+			colour = { r = 34, g = 139, b = 34 }, -- Green
+			description = "Environmental protection and habitat preservation",
+		},
+		{
+			partyId = "development_bloc",
+			name = "Development Bloc",
+			decalId = 0,
+			colour = { r = 0, g = 102, b = 204 }, -- Blue
+			description = "Infrastructure growth and economic development",
+		},
+		{
+			partyId = "harmony_independent",
+			name = "Harmony Independent",
+			decalId = 0,
+			colour = { r = 255, g = 140, b = 0 }, -- Orange
+			description = "Community-focused and pragmatic independents",
 		},
 	},
 
-	-- DISTRICTS (optional)
-	districts = {}, -- Leave empty for non-district elections; otherwise fill with { districtId, name, seats }
+	-- CANDIDATES: 16 candidates (4 per party) for 8 seats
+	candidates = {
+		-- Explorers Union (4 candidates)
+		{
+			candidateId = "eu_lead",
+			userId = "0", -- Replace with actual Roblox UserIds
+			partyId = "explorers_union",
+			name = "M_etrics",
+			bio = "Chief expedition planner, 5+ years Antarctic leadership experience",
+			policyTags = { "Research", "Exploration", "Science" },
+		},
+		{
+			candidateId = "eu_tech",
+			userId = "0",
+			partyId = "explorers_union",
+			name = "Nova Snowpeak",
+			bio = "Technology coordinator, advocates for research infrastructure",
+			policyTags = { "Tech", "Innovation", "Research" },
+		},
+		{
+			candidateId = "eu_diplomacy",
+			userId = "0",
+			partyId = "explorers_union",
+			name = "Glacier Morgan",
+			bio = "International relations specialist",
+			policyTags = { "Diplomacy", "Cooperation", "Expansion" },
+		},
+		{
+			candidateId = "eu_youth",
+			userId = "0",
+			partyId = "explorers_union",
+			name = "Ember Frostwell",
+			bio = "Youth engagement officer",
+			policyTags = { "Youth", "Community", "Growth" },
+		},
 
-	-- CMDR ADMIN
+		-- Conservation Party (4 candidates)
+		{
+			candidateId = "cp_chair",
+			userId = "0",
+			partyId = "conservation_party",
+			name = "Iris Tundra",
+			bio = "Environmental biologist, conservation parliament veteran",
+			policyTags = { "Environment", "Protection", "Sustainability" },
+		},
+		{
+			candidateId = "cp_habitat",
+			userId = "0",
+			partyId = "conservation_party",
+			name = "Zephyr Snowedge",
+			bio = "Habitat restoration specialist",
+			policyTags = { "Wildlife", "Restoration", "Climate" },
+		},
+		{
+			candidateId = "cp_policy",
+			userId = "0",
+			partyId = "conservation_party",
+			name = "Echo Crystal",
+			bio = "Environmental policy advocate",
+			policyTags = { "Policy", "Regulation", "Responsibility" },
+		},
+		{
+			candidateId = "cp_community",
+			userId = "0",
+			partyId = "conservation_party",
+			name = "Aurora Greenwhite",
+			bio = "Community environmental educator",
+			policyTags = { "Education", "Awareness", "Community" },
+		},
+
+		-- Development Bloc (4 candidates)
+		{
+			candidateId = "db_chief",
+			userId = "0",
+			partyId = "development_bloc",
+			name = "Victor Buildstone",
+			bio = "Infrastructure architect, pro-growth policies",
+			policyTags = { "Development", "Infrastructure", "Growth" },
+		},
+		{
+			candidateId = "db_commerce",
+			userId = "0",
+			partyId = "development_bloc",
+			name = "Commodore Tradewise",
+			bio = "Commerce and trade minister candidate",
+			policyTags = { "Economy", "Trade", "Commerce" },
+		},
+		{
+			candidateId = "db_tech",
+			userId = "0",
+			partyId = "development_bloc",
+			name = "Cyborg Frostbyte",
+			bio = "Technology and industrialization advocate",
+			policyTags = { "Technology", "Industry", "Efficiency" },
+		},
+		{
+			candidateId = "db_logistics",
+			userId = "0",
+			partyId = "development_bloc",
+			name = "Tracker Pathfinder",
+			bio = "Logistics and transportation coordinator",
+			policyTags = { "Logistics", "Transport", "Efficiency" },
+		},
+
+		-- Harmony Independent (4 candidates)
+		{
+			candidateId = "hi_founder",
+			userId = "0",
+			partyId = "harmony_independent",
+			name = "Serenity Peaks",
+			bio = "Independent voices candidate, coalition-builder",
+			policyTags = { "Harmony", "Balance", "Cooperation" },
+		},
+		{
+			candidateId = "hi_advocate",
+			userId = "0",
+			partyId = "harmony_independent",
+			name = "Beacon Lightbringer",
+			bio = "Community advocate and mediator",
+			policyTags = { "Community", "Mediation", "Dialogue" },
+		},
+		{
+			candidateId = "hi_grassroots",
+			userId = "0",
+			partyId = "harmony_independent",
+			name = "Summit Voiceofpeople",
+			bio = "Grassroots community organizer",
+			policyTags = { "Community", "Voice", "Participation" },
+		},
+		{
+			candidateId = "hi_consensus",
+			userId = "0",
+			partyId = "harmony_independent",
+			name = "Bridge Connector",
+			bio = "Cross-party consensus builder",
+			policyTags = { "Consensus", "Cooperation", "Unity" },
+		},
+	},
+
+	-- DISTRICTS (empty for at-large MMP)
+	districts = {},
+
+	-- CMDR ADMIN: RoAntarctica admins (rank 200+)
 	cmdr = {
-		adminGroupId = 0, -- Roblox group ID allowed to use election admin commands; 0 means no group restriction
-		adminMinRank = 255, -- Minimum group rank required for command access
+		adminGroupId = 7412080, -- Only RoAntarctica admins
+		adminMinRank = 5, -- Admin+ rank required
 	},
 
 	-- UI
 	ui = {
-		placeholderAvatarId = "rbxassetid://0", -- Fallback image when candidate avatar/image is unavailable
-		accentColour = { r = 50, g = 100, b = 200 }, -- Global accent RGB for election UI
-		electionTitle = "General Election", -- Main heading shown in client UI/results surfaces
+		placeholderAvatarId = "rbxassetid://6032863815", -- Roblox default avatar
+		accentColour = { r = 100, g = 149, b = 237 }, -- Cornflower blue (Antarctic theme)
+		electionTitle = "Sandbox Election — Retest 003 (IRV · Presidential)",
 	},
 }
 

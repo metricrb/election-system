@@ -35,7 +35,7 @@ A universal, modular election system for Roblox supporting **14 different voting
 2. Edit `src/Settings.lua` with your election parameters
 3. Deploy voting booths using example scripts
 
-## Building
+Wally-managed libraries (`Fusion`, `Cmdr`, `Iris`, etc.) live in `DevPackages/` and are mirrored under `ReplicatedStorage.Packages` via `default.project.json`. After editing `wally.toml`, run `wally install` and sync with Rojo.
 
 ```bash
 rojo build default.project.json --output ElectionSystem.rbxm

@@ -7,9 +7,12 @@
 	Place this script in a Part to display live election results on a SurfaceGui.
 ]]
 
-local ElectionSystem = require(game:GetService("ServerScriptService").ElectionSystem)
+local ServerScriptService = game:GetService("ServerScriptService")
+local electionModule = ServerScriptService:WaitForChild("ElectionSystem", 30)
+assert(electionModule:IsA("ModuleScript"), "[ResultsPart] ElectionSystem module missing.")
+local ElectionSystem = require(electionModule :: ModuleScript)
+local CmdrSetup = require((electionModule :: ModuleScript):WaitForChild("Cmdr"):WaitForChild("CmdrSetup"))
 local CollectionService = game:GetService("CollectionService")
-local CmdrSetup = require(game:GetService("ServerScriptService").ElectionSystem.Cmdr.CmdrSetup)
 
 local ResultsPart = {}
 local RESULTS_TAG = "ResultsPart"
@@ -121,6 +124,10 @@ function setupResultsDisplay(part: Part)
 		if key == "resultsCache" then
 			updateResults()
 		end
+	end)
+
+	CmdrSetup.connectChartModeChanged(function()
+		updateResults()
 	end)
 
 	-- Initial update
