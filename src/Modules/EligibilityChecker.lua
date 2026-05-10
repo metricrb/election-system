@@ -6,14 +6,40 @@ local Diagnostics = require(script.Parent.ElectionDiagnostics)
 
 --[=[
 	@class EligibilityChecker
+	@tag Validation & Detection
 
-	Checks voter eligibility based on configured rules:
-	- Banned usernames (case-insensitive)
-	- Banned groups (any rank > 0)
-	- Minimum group rank (if enabled)
-	- Minimum account age (if enabled)
+	Validates voter eligibility based on configured rules.
 
-	First failing check returns its reason; all pass = eligible.
+	Checks are performed in order, and the first failing check is returned:
+	1. **Banned Usernames** — Case-insensitive username blacklist
+	2. **Banned Groups** — Membership in disqualifying groups (any rank > 0)
+	3. **Minimum Group Rank** — Must have at least the configured rank in a specific group
+	4. **Minimum Account Age** — Account must be at least N days old
+
+	All checks must pass for a player to be eligible. Configuration is in Settings.eligibility.
+
+	## Usage
+
+	```lua
+	local eligibility = ElectionManager:checkEligibility(player)
+	if eligibility.eligible then
+		print("Player can vote!")
+	else
+		print("Ineligible:", eligibility.reason)
+	end
+	```
+
+	## Configuration
+
+	In Settings.lua:
+	```lua
+	eligibility = {
+		minGroupRank = { groupId = 12345, minRank = 1 },  -- optional
+		minAccountAgeDays = 30,  -- optional
+		bannedGroupIds = { 999, 1000 },
+		bannedUsernames = { "BadActor", "BadActor2" },
+	}
+	```
 ]=]
 
 local EligibilityChecker = {}
@@ -24,7 +50,18 @@ local EligibilityChecker = {}
 	@param player Player
 	@return EligibilityResult
 
-	Checks if a player is eligible to vote. Returns result with eligible flag and reason string.
+	Checks if a player is eligible to vote.
+
+	Returns an EligibilityResult with:
+	- `eligible` (boolean) — true if all checks pass
+	- `reason` (string) — Human-readable explanation of any failure
+
+	```lua
+	local result = EligibilityChecker.check(player)
+	if not result.eligible then
+		player:Kick(result.reason)
+	end
+	```
 ]=]
 function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	local config = Settings.eligibility

@@ -23,8 +23,43 @@ local Sortition = require(script.Parent.VotingMethods.Sortition)
 
 --[=[
 	@class ResultCalculator
+	@tag Elections & Results
 
-	Orchestrates voting method execution and result formatting.
+	Coordinates all 14 voting methods and calculates election results from ballots.
+
+	The ResultCalculator dispatches to method-specific implementation modules (FPTP, IRV, Score, etc.)
+	based on the configured voting method in Settings. It also handles:
+	- Ballot format validation (custom per voting method)
+	- Result formatting into a standard ElectionResult structure
+	- District-by-district vote counting for geographic elections
+
+	## Voting Methods
+
+	All 14 methods return winners and vote shares:
+	- **FPTP** — First-past-the-post, single winner
+	- **TwoRound** — Two-round runoff, single winner
+	- **IRV** — Instant runoff voting, ranked choice
+	- **Approval** — Approval voting
+	- **Score** — Range/score voting
+	- **STAR** — Score Then Automatic Runoff
+	- **STV** — Single Transferable Vote, multi-winner
+	- **PartyListPR** — Party-list proportional representation
+	- **MMP** — Mixed-member proportional
+	- **Parallel** — Parallel voting systems
+	- **Condorcet** — Condorcet method
+	- **Borda** — Borda count
+	- **Cumulative** — Cumulative voting
+	- **Sortition** — Random selection (for sortition-based elections)
+
+	## Usage
+
+	```lua
+	-- Usually handled internally by ElectionManager.calculateResults()
+	local ballots = store:getAllVotes()
+	local result = ResultCalculator.calculate(Settings.votingMethod, ballots, store)
+	print("Winner:", result.winner.name)
+	print("Votes recorded:", result.votesRecorded)
+	```
 ]=]
 
 local ResultCalculator = {}
@@ -49,18 +84,36 @@ local METHODS: { [string]: any } = {
 --[=[
 	@function calculate
 	@within ResultCalculator
-	@param votingMethod string
-	@param ballots { Types.Ballot }
-	@param store Store
-	@return Types.ElectionResult
+	@param votingMethod string — The voting method to use (e.g., "FPTP", "IRV")
+	@param ballots { Types.Ballot } — Array of all cast ballots
+	@param store Store — The election store instance
+	@return Types.ElectionResult — Complete election results with winners and vote shares
 
 	Calculates election results using the specified voting method.
+
+	Delegates to the method-specific module (e.g., FPTP.lua, IRV.lua) which implements
+	the counting algorithm. Returns a standardized ElectionResult object.
+
+	```lua
+	local result = ResultCalculator.calculate("IRV", ballots, store)
+	```
 ]=]
+
 --[=[
 	@function validateBallot
 	@within ResultCalculator
+	@param ballot Types.Ballot
+	@return { valid: boolean, reason: string }
 
-	Uses the active Settings.votingMethod implementation's validateBallot when present.
+	Validates a ballot against the currently configured voting method's rules.
+
+	Different voting methods have different ballot constraints:
+	- FPTP: single selection
+	- Ranked methods: no duplicate selections
+	- Score: numeric ranges
+	- Approval: binary choices
+
+	Returns `{valid=true}` if the ballot is acceptable, otherwise an error reason.
 ]=]
 function ResultCalculator.validateBallot(ballot: Types.Ballot): { valid: boolean, reason: string }
 	local method = METHODS[Settings.votingMethod]

@@ -2,7 +2,16 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Iris = require(ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Iris"))
+local Iris: any = nil
+do
+	local packagesFolder = ReplicatedStorage:FindFirstChild("Packages")
+	if packagesFolder then
+		local irisModule = packagesFolder:FindFirstChild("Iris")
+		if irisModule then
+			Iris = require(irisModule)
+		end
+	end
+end
 
 local ElectionDebug = {}
 
@@ -30,7 +39,7 @@ function ElectionDebug.init(remotes: Folder, getLastSubmitOk: () -> boolean?)
 	end
 
 	local function ensureIris()
-		if irisStarted then
+		if irisStarted or not Iris then
 			return
 		end
 		irisStarted = true

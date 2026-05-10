@@ -5,9 +5,54 @@ local RoundManager = require(script.Parent.Parent.RoundManager)
 
 --[=[
 	@class IRV
+	@tag Elections & Results
 
-	Instant Runoff Voting (ranked choice). Iteratively eliminates lowest-vote candidate
-	until someone reaches majority (>50%).
+	Instant Runoff Voting (IRV) — Ranked choice voting system.
+
+	Voters rank candidates in order of preference. The system iteratively eliminates the
+	lowest-vote candidate and recounts votes, moving ballots to voters' next choices until
+	someone achieves a majority (>50%).
+
+	## How It Works
+
+	1. Count first-choice votes
+	2. If a candidate has >50% of votes, they win
+	3. Eliminate the candidate with the fewest votes
+	4. Move ballots that ranked that candidate first to their next choice
+	5. Recount and repeat until someone reaches majority
+
+	## Example Ballot
+
+	Voters rank their top candidates:
+	```lua
+	ballot = {
+		{ candidateId = "alice", rank = 1 },
+		{ candidateId = "bob", rank = 2 },
+		{ candidateId = "carol", rank = 3 },
+	}
+	```
+
+	## Example Results
+
+	```
+	Round 1: Alice=40%, Bob=35%, Carol=25%
+	   (Carol eliminated; her ballots reassigned)
+	Round 2: Alice=45%, Bob=55%
+	   (Bob wins with majority)
+	```
+
+	## Advantages
+
+	- Encourages consensus-building
+	- Eliminates "lesser of two evils" voting
+	- Captures voter preferences across spectrum
+	- Used in: Australian elections, Maine/Alaska US, many organizations
+
+	## Disadvantages
+
+	- More complex for voters and election officials
+	- Results depend on ballot order (ranked preference)
+	- Can produce counterintuitive outcomes with certain distributions
 ]=]
 
 local IRV = {}

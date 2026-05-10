@@ -1,11 +1,50 @@
 --!strict
 
 --[=[
-	@class ElectionSystem
-	@__index ElectionManager
+	@class ElectionManager
+	@tag Core API
 
-	Root module for the universal Roblox election system.
-	Initialize and configure via src/Settings.lua before using.
+	The main API for managing elections in Roblox. Handles vote recording, result calculation,
+	eligibility checking, and election state management.
+
+	## Getting Started
+
+	The ElectionManager automatically initializes when required. Before requiring, configure
+	your election in `src/Settings.lua`:
+
+	```lua
+	local ElectionManager = require(game:GetService("ServerScriptService").ElectionManager)
+
+	-- Get current phase
+	local phase = ElectionManager:getPhase()
+
+	-- Check if player can vote
+	local eligibility = ElectionManager:checkEligibility(player)
+
+	-- Calculate results
+	local results = ElectionManager:calculateResults()
+	```
+
+	## Voting Flow
+
+	1. Client submits ballot via RemoteFunction
+	2. Server calls `recordVote(player, ballot)`
+	3. System validates eligibility, ballot format, and detects alts
+	4. Vote stored in DataStore via Data module
+	5. All clients notified via ElectionStateUpdated event
+
+	## Exported Modules
+
+	Access sub-modules via ElectionManager:
+	- `.Types` — Election type definitions
+	- `.Store` — In-memory vote storage
+	- `.Data` — DataStore persistence
+	- `.Network` — RemoteFunction/Event handling
+	- `.ResultCalculator` — Vote counting algorithms
+	- `.EligibilityChecker` — Voter eligibility validation
+	- `.AltDetector` — Account duplication detection
+	- `.DistrictManager` — District-based elections
+	- `.SeatAllocator` — Multi-seat allocation methods
 ]=]
 
 local Players = game:GetService("Players")

@@ -4,9 +4,49 @@ local Types = require(script.Parent.Parent.Types)
 
 --[=[
 	@class FPTP
+	@tag Elections & Results
 
-	First-Past-The-Post voting method.
-	Candidate with most votes wins. No majority required.
+	First-Past-The-Post (FPTP) voting method.
+
+	The candidate with the most votes wins, regardless of whether they have a majority.
+	Each voter casts a single vote for one candidate.
+
+	## How It Works
+
+	1. Each ballot contains one vote (ballot[1].candidateId)
+	2. Votes are tallied for each candidate
+	3. Candidate with the most votes wins
+	4. Vote shares are calculated as percentages
+
+	## Example Results
+
+	```
+	Ballots:    [Alice, Alice, Bob, Carol]
+	Vote Tally: Alice=2, Bob=1, Carol=1
+	Winner:     Alice
+	Share:      Alice=50%, Bob=25%, Carol=25%
+	```
+
+	## Ballot Format
+
+	Voters select exactly one candidate:
+	```lua
+	ballot = {
+		{ candidateId = "alice", rank = 1 }  -- only first entry used
+	}
+	```
+
+	## Use Cases
+
+	- Simple elections with clear majority support
+	- Single-winner elections
+	- Government models: Presidential (president only), Parliamentary (single seat)
+
+	## Limitations
+
+	- Can elect a winner with <50% of votes
+	- Does not represent minority preferences
+	- In multi-candidate races, may split votes among similar candidates
 ]=]
 
 local FPTP = {}
@@ -14,11 +54,17 @@ local FPTP = {}
 --[=[
 	@function calculateWinner
 	@within FPTP
-	@param ballots { Types.Ballot }
-	@param config Types.ElectionConfig
-	@return WinnerResult
+	@param ballots { Types.Ballot } — Array of all cast ballots
+	@param config Types.ElectionConfig — Election configuration
+	@return Types.WinnerResult — Winner object with voteShare percentages
 
-	Returns the candidate with the most votes.
+	Counts votes and returns the candidate with the most votes.
+
+	```lua
+	local result = FPTP.calculateWinner(ballots, Settings)
+	print("Winner:", result.winner.name)
+	print("Vote share:", result.voteShare[result.winner.candidateId] .. "%")
+	```
 ]=]
 function FPTP.calculateWinner(ballots: { Types.Ballot }, config: Types.ElectionConfig): Types.WinnerResult
 	local voteShare: { [string]: number } = {}

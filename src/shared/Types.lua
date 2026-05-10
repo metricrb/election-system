@@ -1,39 +1,90 @@
 --!strict
 
---[[
-	Universal election system type definitions.
+--[=[
+	@module Types
+	@tag Core API
 
-	All exported types are used throughout the election system for type checking
-	and runtime validation.
-]]
+	Type definitions for the election system.
 
--- Error information
-export type Error = {
-	type: string,
-	raw: string,
-	message: string,
-	trace: string
-}
+	This module exports all types used throughout ElectionSystem for type checking, validation,
+	and API documentation. All client code should import Types for proper type annotations.
 
--- Election phases
+	## Key Types
+
+	- **ElectionPhase** — Current election state
+	- **VotingMethod** — Counting algorithm selection
+	- **Candidate/Party** — Election participants
+	- **Ballot/VoteRecord** — Voting data structures
+	- **ElectionResult** — Calculated outcomes
+
+	## Configuration
+
+	All election behavior is controlled via ElectionConfig, loaded from Settings.lua:
+	- Voting method and government type
+	- Eligibility and fraud detection rules
+	- Candidates, parties, and districts
+	- UI and administrative settings
+
+	## Usage
+
+	```lua
+	local Types = require(game:GetService("ServerScriptService").ElectionManager).Types
+
+	local ballot: Types.Ballot = {
+		{ candidateId = "alice", rank = 1 },
+		{ candidateId = "bob", rank = 2 },
+	}
+	```
+]=]
+
+--[=[
+	@type ElectionPhase
+	@within Types
+	Possible election states: "Scheduled", "Open", "Closed", "ResultsOut", "Coalition", or "Formed"
+]=]
 export type ElectionPhase = "Scheduled" | "Open" | "Closed" | "ResultsOut" | "Coalition" | "Formed"
 
--- Voting methods
+--[=[
+	@type VotingMethod
+	@within Types
+	14 different voting/counting methods: FPTP, TwoRound, IRV, Approval, Score, STAR, STV,
+	PartyListPR, MMP, Parallel, Condorcet, Borda, Cumulative, or Sortition
+]=]
 export type VotingMethod = "FPTP" | "TwoRound" | "IRV" | "Approval" | "Score" | "STAR" | "STV" | "PartyListPR" | "MMP" | "Parallel" | "Condorcet" | "Borda" | "Cumulative" | "Sortition"
 
--- Government types
+--[=[
+	@type GovernmentType
+	@within Types
+	Electoral system type: Presidential, Parliamentary, SemiPresidential, or ConstitutionalMonarchy
+]=]
 export type GovernmentType = "Presidential" | "Parliamentary" | "SemiPresidential" | "ConstitutionalMonarchy"
 
--- Seat system types
+--[=[
+	@type SeatSystem
+	@within Types
+	How seats are distributed: SingleMemberDistrict, MultiMemberDistrict, AtLarge, or Federal
+]=]
 export type SeatSystem = "SingleMemberDistrict" | "MultiMemberDistrict" | "AtLarge" | "Federal"
 
--- Apportionment methods for multi-seat allocation
+--[=[
+	@type ApportionmentMethod
+	@within Types
+	Algorithm for multi-seat allocation: DHondt, SainteLague, or HareNiemeyer
+]=]
 export type ApportionmentMethod = "DHondt" | "SainteLague" | "HareNiemeyer"
 
--- Alt detection heuristics
+--[=[
+	@type AltHeuristic
+	@within Types
+	Alt detection method: "age" (account age), "rapid" (voting speed), or "both"
+]=]
 export type AltHeuristic = "age" | "rapid" | "both"
 
--- Party definition
+--[=[
+	@type Party
+	@within Types
+	A political party in the election. Must set decalId (Roblox decal ID) and RGB color.
+]=]
 export type Party = {
 	partyId: string,
 	name: string,
@@ -42,7 +93,11 @@ export type Party = {
 	description: string,
 }
 
--- Candidate definition
+--[=[
+	@type Candidate
+	@within Types
+	A candidate running for office. Optional partyId for party-based voting methods.
+]=]
 export type Candidate = {
 	candidateId: string,
 	userId: string,
@@ -52,14 +107,22 @@ export type Candidate = {
 	policyTags: { string },
 }
 
--- District definition
+--[=[
+	@type District
+	@within Types
+	A geographic or demographic district for district-based elections.
+]=]
 export type District = {
 	districtId: string,
 	name: string,
 	seats: number,
 }
 
--- Eligibility configuration
+--[=[
+	@type EligibilityConfig
+	@within Types
+	Rules determining who can vote: group rank, account age, and ban lists.
+]=]
 export type EligibilityConfig = {
 	minGroupRank: { groupId: number, minRank: number },
 	minAccountAgeDays: number,
@@ -67,7 +130,11 @@ export type EligibilityConfig = {
 	bannedUsernames: { string },
 }
 
--- Alt detection configuration
+--[=[
+	@type AltDetectionConfig
+	@within Types
+	Settings for detecting and handling account duplicates (alt accounts).
+]=]
 export type AltDetectionConfig = {
 	enabled: boolean,
 	onDetect: "KickWithScreen" | "InvalidateVote",
@@ -78,22 +145,34 @@ export type AltDetectionConfig = {
 	rapidVoteThresholdSeconds: number,
 }
 
--- CMDR configuration
+--[=[
+	@type CmdrConfig
+	@within Types
+	Administrative access control for Cmdr commands.
+]=]
 export type CmdrConfig = {
 	adminGroupId: number,
 	adminMinRank: number,
 }
 
--- UI configuration
+--[=[
+	@type UiConfig
+	@within Types
+	Customization for the client UI: colors, title, avatar settings.
+]=]
 export type UiConfig = {
 	placeholderAvatarId: string,
 	accentColour: { r: number, g: number, b: number },
 	electionTitle: string,
 }
 
--- Master election configuration
+--[=[
+	@type ElectionConfig
+	@within Types
+	Master configuration object. Passed to Settings.lua and distributed to clients.
+	Controls all election behavior: voting rules, candidates, eligibility, phases.
+]=]
 export type ElectionConfig = {
-	-- Change each Studio run when batch-testing (see Settings header); echoed in server prints.
 	testRunId: string?,
 	countryId: string,
 	votingMethod: VotingMethod,
@@ -109,7 +188,6 @@ export type ElectionConfig = {
 	openAt: number,
 	closeAt: number,
 
-	-- When true, removes this player's persisted + in-memory vote on join so they can vote again (Studio / QA). **Never use in production live elections.**
 	clearPlayerVoteOnJoin: boolean,
 
 	eligibility: EligibilityConfig,
@@ -123,34 +201,57 @@ export type ElectionConfig = {
 	ui: UiConfig,
 }
 
--- Ballot entry (varies by voting method)
+--[=[
+	@type BallotEntry
+	@within Types
+	A single vote entry on a ballot. Fields vary by voting method:
+	- rank/score for rated methods
+	- approved for approval voting
+]=]
 export type BallotEntry = {
 	candidateId: string,
-	rank: number?,      -- for ranked methods (IRV, STV, Borda)
-	score: number?,     -- for scored methods (Score, STAR, Cumulative)
-	approved: boolean?, -- for approval method
+	rank: number?,
+	score: number?,
+	approved: boolean?,
 }
 
+--[=[
+	@type Ballot
+	@within Types
+	Array of BallotEntry; represents one player's vote.
+]=]
 export type Ballot = { BallotEntry }
 
--- Vote record
+--[=[
+	@type VoteRecord
+	@within Types
+	Persisted record of one player's vote with metadata.
+]=]
 export type VoteRecord = {
 	userId: string,
 	ballot: Ballot,
 	timestamp: number,
 	roundId: number?,
-	partyVote: string?, -- for party-based methods (PR, MMP)
+	partyVote: string?,
 	districtId: string?,
 }
 
--- Winner result from a voting method
+--[=[
+	@type WinnerResult
+	@within Types
+	Intermediate result from vote counting (before seat allocation).
+]=]
 export type WinnerResult = {
-	winner: Candidate | { Candidate },  -- single winner or multiple
-	voteShare: { [string]: number },     -- candidateId -> percentage
-	roundHistory: { any }?,              -- for multi-round methods
+	winner: Candidate | { Candidate },
+	voteShare: { [string]: number },
+	roundHistory: { any }?,
 }
 
--- Seat allocation result
+--[=[
+	@type SeatAllocation
+	@within Types
+	Multi-seat distribution by party or group.
+]=]
 export type SeatAllocation = {
 	[string]: {
 		seats: number,
@@ -158,7 +259,11 @@ export type SeatAllocation = {
 	}
 }
 
--- Full election result
+--[=[
+	@type ElectionResult
+	@within Types
+	Complete election outcome: winners, vote shares, seats, coalitions.
+]=]
 export type ElectionResult = {
 	phase: ElectionPhase,
 	votesRecorded: number,
@@ -174,13 +279,21 @@ export type ElectionResult = {
 	calculatedAt: number,
 }
 
--- Eligibility check result
+--[=[
+	@type EligibilityResult
+	@within Types
+	Outcome of eligibility check: pass/fail with reason.
+]=]
 export type EligibilityResult = {
 	eligible: boolean,
 	reason: string,
 }
 
--- Alt detection result
+--[=[
+	@type AltFlagResult
+	@within Types
+	Outcome of alt detection check: flagged/not, with action (kick or invalidate).
+]=]
 export type AltFlagResult = {
 	flagged: boolean,
 	reason: string,
@@ -188,7 +301,11 @@ export type AltFlagResult = {
 	shouldInvalidate: boolean,
 }
 
--- Ballot template for UI
+--[=[
+	@type BallotTemplate
+	@within Types
+	Client-side ballot UI configuration: allowed selections, scoring, ranking rules.
+]=]
 export type BallotTemplate = {
 	votingMethod: VotingMethod,
 	candidates: { Candidate },
@@ -199,8 +316,8 @@ export type BallotTemplate = {
 	allowScoring: boolean,
 	allowApproval: boolean,
 	scoreRange: { min: number, max: number }?,
-	dualBallot: boolean,  -- for MMP, Parallel
-	partyBallot: { Party }?,  -- for party-based methods
+	dualBallot: boolean,
+	partyBallot: { Party }?,
 }
 
 return nil

@@ -20,10 +20,7 @@
           "$path": "src/shared"
         },
         "client": {
-          "$path": "src/client",
-          "$exclude": [
-            "**ElectionDebug.lua"
-          ]
+          "$path": "src/client"
         },
         "Cmdr": {
           "$path": "src/Cmdr"
@@ -46,10 +43,7 @@
       },
       "StarterPlayerScripts": {
         "ClientModules": {
-          "$path": "src/client",
-          "$exclude": [
-            "**ElectionDebug.lua"
-          ]
+          "$path": "src/client"
         },
         "ElectionSystemClient": {
           "$path": "src/client_bootstrap"

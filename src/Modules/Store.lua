@@ -5,9 +5,41 @@ local Types = require(script.Parent.Types)
 
 --[=[
 	@class Store
+	@tag State Management
 
-	In-memory storage for election state, vote records, and metadata.
-	Provides methods for get, set, serialize/deserialize for ProfileService integration.
+	In-memory vote cache and election state store.
+
+	The Store maintains all election data during the game session:
+	- Vote records (keyed by userId)
+	- Current phase and round information
+	- Cached election results
+	- Alt detection logs
+	- Round history
+
+	Data is synced with DataStore via the Data module. Store provides fast, in-memory access to
+	election state without repeated DataStore calls.
+
+	## Usage
+
+	```lua
+	local store = ElectionManager:getStore()
+
+	-- Record a vote
+	store:recordVote(userId, ballot)
+
+	-- Check if voted
+	if store:hasVoted(userId) then
+		print("Player already voted")
+	end
+
+	-- Get all votes for result calculation
+	local allVotes = store:getAllVotes()
+
+	-- Listen for state changes
+	store.dataChanged:connect(function(key, value)
+		print("Field changed:", key)
+	end)
+	```
 ]=]
 
 local Store = {}

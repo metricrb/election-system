@@ -8,8 +8,49 @@ local Settings = require(script.Parent.Parent.Settings)
 
 --[=[
 	@class Data
+	@tag State Management
 
-	ProfileService integration for persistent player profile data.
+	Manages persistent player data via ProfileService.
+
+	The Data module provides a wrapper around ProfileService for storing and retrieving
+	election-related player information. Each player gets a profile that survives server restarts
+	and maintains vote records across sessions.
+
+	## Data Structure
+
+	Each player's profile contains:
+	```lua
+	{
+		Elections = {
+			voteRecords = { ... },  -- historical vote data
+			-- other election fields
+		}
+	}
+	```
+
+	## Lifecycle
+
+	- **Player joins**: Profile is loaded from DataStore (or created if new)
+	- **Vote recorded**: Vote data persisted to player's profile
+	- **Player leaves**: Profile released (data auto-saves)
+
+	## Usage
+
+	```lua
+	-- Load a player's profile
+	Data.loadProfile(player.UserId)
+
+	-- Store a vote record
+	local voteRecord = { userId = userId, ballot = ballot, timestamp = os.time() }
+	Data.setVoteRecord(player.UserId, voteRecord)
+
+	-- Retrieve later
+	local record = Data.getVoteRecord(player.UserId)
+	```
+
+	## Dependencies
+
+	Requires ProfileService from Wally (DevPackages/Packages/ProfileService).
 ]=]
 
 local Data = {}
