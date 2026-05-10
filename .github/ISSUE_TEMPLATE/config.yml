@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/metricrb/election-system/tree/main/docs
+    about: Read the project documentation
+  - name: Discussions
+    url: https://github.com/metricrb/election-system/discussions
+    about: Start a general discussion or ask a question
+  - name: Contributing Guide
+    url: https://github.com/metricrb/election-system/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project
