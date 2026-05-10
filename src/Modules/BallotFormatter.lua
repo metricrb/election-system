@@ -2,24 +2,23 @@
 
 local Types = require(script.Parent.Types)
 
---[[
+--[=[
 	@class BallotFormatter
-	@within ElectionSystem
 
 	Converts election config to ballot template for UI rendering.
 	Specifies input method (buttons, sliders, drag-to-rank) per voting method.
-]]
+]=]
 
 local BallotFormatter = {}
 
---[[
+--[=[
 	@function format
 	@within BallotFormatter
 	@param votingMethod string
 	@param candidates { Types.Candidate }
 	@param parties { Types.Party }
 	@return Types.BallotTemplate
-]]
+]=]
 function BallotFormatter.format(votingMethod: string, candidates: { Types.Candidate }, parties: { Types.Party }): Types.BallotTemplate
 	if votingMethod == "FPTP" or votingMethod == "Approval" then
 		return {

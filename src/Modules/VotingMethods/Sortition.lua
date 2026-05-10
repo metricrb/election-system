@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Sortition
-	@within ElectionSystem
 
 	Sortition/Random selection. Randomly selects N eligible players for office.
 	No voting required.
-]]
+]=]
 
 local Sortition = {}
 

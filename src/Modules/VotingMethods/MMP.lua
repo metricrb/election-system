@@ -3,14 +3,13 @@
 local Types = require(script.Parent.Parent.Types)
 local SeatAllocator = require(script.Parent.Parent.SeatAllocator)
 
---[[
+--[=[
 	@class MMP
-	@within ElectionSystem
 
 	Mixed-Member Proportional (Germany, New Zealand model).
 	Two votes: local representative + national party.
 	Allocates compensation seats to balance parliament proportionally.
-]]
+]=]
 
 local MMP = {}
 

@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Borda
-	@within ElectionSystem
 
 	Borda count. Ranked voting where each rank position gives points.
 	Highest total points wins.
-]]
+]=]
 
 local Borda = {}
 

@@ -1,9 +1,10 @@
 --!strict
 
---[[
+--[=[
+	@class Theme
+
 	Dark theme tokens aligned with Roblox Election UI design (Figma / shadcn dark palette).
-	@within ElectionSystem
-]]
+]=]
 
 local Theme = {}
 

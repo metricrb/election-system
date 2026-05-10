@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Cumulative
-	@within ElectionSystem
 
 	Cumulative voting. Each voter distributes multiple votes among candidates.
 	Can stack all votes on one candidate or spread them.
-]]
+]=]
 
 local Cumulative = {}
 

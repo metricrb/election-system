@@ -2,12 +2,11 @@
 
 local Signal = require(script.Parent.Parent.Signal)
 
---[[
+--[=[
 	@class Network
-	@within ElectionSystem
 
 	Creates and manages RemoteEvents/RemoteFunctions for client-server communication.
-]]
+]=]
 
 local Network = {}
 local remoteFolder: Folder?

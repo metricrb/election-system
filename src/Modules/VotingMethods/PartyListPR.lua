@@ -3,14 +3,13 @@
 local Types = require(script.Parent.Parent.Types)
 local SeatAllocator = require(script.Parent.Parent.SeatAllocator)
 
---[[
+--[=[
 	@class PartyListPR
-	@within ElectionSystem
 
 	Party-List Proportional Representation.
 	Voters vote for parties. Seats allocated by party vote share.
 	Candidates from each party fill seats in order (closed or open list).
-]]
+]=]
 
 local PartyListPR = {}
 

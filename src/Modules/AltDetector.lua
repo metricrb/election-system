@@ -6,9 +6,8 @@ local Settings = require(script.Parent.Parent.Settings)
 local Store = require(script.Parent.Store)
 local Diagnostics = require(script.Parent.ElectionDiagnostics)
 
---[[
+--[=[
 	@class AltDetector
-	@within ElectionSystem
 
 	Detects suspicious accounts post-vote. Supports three heuristics:
 	- "age": flag if account age < minAccountAgeDays
@@ -19,7 +18,7 @@ local Diagnostics = require(script.Parent.ElectionDiagnostics)
 	- KickWithScreen: fires event, client shows countdown, BanAPI called
 	- InvalidateVote: silently removes vote from results, logs flag
 	- Disabled: no action
-]]
+]=]
 
 local AltDetector = {}
 
@@ -30,7 +29,7 @@ export type AltDetector = {
 
 local AltDetected = Signal.new()
 
---[[
+--[=[
 	@function detect
 	@within AltDetector
 	@param store Store
@@ -39,7 +38,7 @@ local AltDetected = Signal.new()
 	@return AltFlagResult
 
 	Analyzes player account for suspicious behavior based on configured heuristic.
-]]
+]=]
 function AltDetector.detect(
 	store: Store,
 	userId: string,

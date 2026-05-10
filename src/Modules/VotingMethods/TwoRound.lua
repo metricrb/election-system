@@ -3,13 +3,12 @@
 local Types = require(script.Parent.Parent.Types)
 local RoundManager = require(script.Parent.Parent.RoundManager)
 
---[[
+--[=[
 	@class TwoRound
-	@within ElectionSystem
 
 	Two-round (runoff) voting. If no candidate exceeds threshold in round 1,
 	top two candidates advance to round 2.
-]]
+]=]
 
 local TwoRound = {}
 

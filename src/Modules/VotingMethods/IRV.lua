@@ -3,13 +3,12 @@
 local Types = require(script.Parent.Parent.Types)
 local RoundManager = require(script.Parent.Parent.RoundManager)
 
---[[
+--[=[
 	@class IRV
-	@within ElectionSystem
 
 	Instant Runoff Voting (ranked choice). Iteratively eliminates lowest-vote candidate
 	until someone reaches majority (>50%).
-]]
+]=]
 
 local IRV = {}
 

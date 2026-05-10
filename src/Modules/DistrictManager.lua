@@ -3,12 +3,11 @@
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
 
---[[
+--[=[
 	@class DistrictManager
-	@within ElectionSystem
 
 	Routes votes by electoral district. Supports single-member, multi-member, at-large, federal.
-]]
+]=]
 
 local DistrictManager = {}
 

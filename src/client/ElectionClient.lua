@@ -1,14 +1,13 @@
 --!strict
 
---[[
+--[=[
 	@class ElectionClient
-	@within ElectionSystem
 
 	Client-side election system. Handles UI, vote submission, and event listening.
 
 	Election display config is loaded from the server (`Settings.lua` via `RequestElectionConfig`);
 	the client does not duplicate election data locally.
-]]
+]=]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SharedFolder = ReplicatedStorage:WaitForChild("ElectionSystemShared")
@@ -70,12 +69,12 @@ local function fetchElectionConfigFromServer(): any
 	}
 end
 
---[[
+--[=[
 	@method init
 	@within ElectionClient
 
 	Initializes the client election system.
-]]
+]=]
 function ElectionClient.init()
 	if initialized then
 		return
@@ -169,21 +168,21 @@ function ElectionClient.init()
 	end)
 end
 
---[[
+--[=[
 	@method onPhaseChanged
 	@within ElectionClient
 	@param phase ElectionPhase
-]]
+]=]
 function ElectionClient.onPhaseChanged(phase: Types.ElectionPhase)
 	if mountedUi then
 		mountedUi:setPhase(phase)
 	end
 end
 
---[[
+--[=[
 	@method onBallotOpened
 	@within ElectionClient
-]]
+]=]
 function ElectionClient.onBallotOpened()
 	if mountedUi then
 		if mountedUi.isBallotOpen and mountedUi:isBallotOpen() then
@@ -209,54 +208,54 @@ function ElectionClient.onBallotOpened()
 	end
 end
 
---[[
+--[=[
 	@method onResultsReceived
 	@within ElectionClient
 	@param results ElectionResult
-]]
+]=]
 function ElectionClient.onResultsReceived(results: Types.ElectionResult)
 	if mountedUi then
 		mountedUi:showResults(results)
 	end
 end
 
---[[
+--[=[
 	@method onAlreadyVoted
 	@within ElectionClient
-]]
+]=]
 function ElectionClient.onAlreadyVoted()
 	if mountedUi then
 		mountedUi:showAlreadyVoted()
 	end
 end
 
---[[
+--[=[
 	@method onIneligible
 	@within ElectionClient
 	@param reason string
-]]
+]=]
 function ElectionClient.onIneligible(reason: string)
 	if mountedUi then
 		mountedUi:showIneligible(reason)
 	end
 end
 
---[[
+--[=[
 	@method onAltDetected
 	@within ElectionClient
-]]
+]=]
 function ElectionClient.onAltDetected()
 	if mountedUi then
 		mountedUi:showKick()
 	end
 end
 
---[[
+--[=[
 	@method submitVote
 	@within ElectionClient
 	@param ballot Ballot
 	@return boolean
-]]
+]=]
 function ElectionClient.submitVote(ballot: Types.Ballot): boolean
 	if not remoteFolder then
 		lastSubmitOk = false

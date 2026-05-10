@@ -2,17 +2,16 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class FPTP
-	@within ElectionSystem
 
 	First-Past-The-Post voting method.
 	Candidate with most votes wins. No majority required.
-]]
+]=]
 
 local FPTP = {}
 
---[[
+--[=[
 	@function calculateWinner
 	@within FPTP
 	@param ballots { Types.Ballot }
@@ -20,7 +19,7 @@ local FPTP = {}
 	@return WinnerResult
 
 	Returns the candidate with the most votes.
-]]
+]=]
 function FPTP.calculateWinner(ballots: { Types.Ballot }, config: Types.ElectionConfig): Types.WinnerResult
 	local voteShare: { [string]: number } = {}
 
@@ -65,7 +64,7 @@ function FPTP.calculateWinner(ballots: { Types.Ballot }, config: Types.ElectionC
 	}
 end
 
---[[
+--[=[
 	@function validateBallot
 	@within FPTP
 	@param ballot Types.Ballot
@@ -73,7 +72,7 @@ end
 	@return { valid: boolean, reason: string }
 
 	Validates that ballot has exactly one candidate selected.
-]]
+]=]
 function FPTP.validateBallot(ballot: Types.Ballot, config: Types.ElectionConfig): { valid: boolean, reason: string }
 	if #ballot ~= 1 then
 		return { valid = false, reason = "FPTP requires exactly one vote" }

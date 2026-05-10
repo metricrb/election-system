@@ -2,15 +2,14 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class STAR
-	@within ElectionSystem
 
 	STAR voting (Score Then Automatic Runoff).
 	Phase 1: Each voter scores candidates 0-5.
 	Phase 2: Top 2 highest-scoring candidates enter automatic runoff.
 	Phase 3: Ballots compared: higher-scored candidate wins pairwise comparison.
-]]
+]=]
 
 local STAR = {}
 

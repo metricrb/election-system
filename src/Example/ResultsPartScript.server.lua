@@ -1,11 +1,6 @@
 --!strict
 
---[[
-	@within ElectionSystem.Example
-
-	ResultsPartScript.server.lua
-	Place this script in a Part to display live election results on a SurfaceGui.
-]]
+-- ResultsPartScript.server.lua — place this script in a Part to display live election results on a SurfaceGui.
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local electionModule = ServerScriptService:WaitForChild("ElectionSystem", 30)

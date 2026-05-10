@@ -1,12 +1,7 @@
 --!strict
 
---[[
-	@within ElectionSystem.Example
-
-	VotingBoothPart.server.lua
-	Place this script in a Part to create a voting booth.
-	Players can use a ProximityPrompt to start voting.
-]]
+-- VotingBoothPart.server.lua — place this script in a Part to create a voting booth.
+-- Players can use a ProximityPrompt to start voting.
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local electionHolder = ServerScriptService:WaitForChild("ElectionSystem", 30)

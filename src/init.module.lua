@@ -1,12 +1,12 @@
 --!strict
 
---[[
-	@class ElectionSystem (ElectionManager)
-	@within ElectionSystem
+--[=[
+	@class ElectionSystem
+	@__index ElectionManager
 
 	Root module for the universal Roblox election system.
 	Initialize and configure via src/Settings.lua before using.
-]]
+]=]
 
 local Players = game:GetService("Players")
 local Settings = require(script.Settings)
@@ -73,12 +73,12 @@ function ElectionManager:hydrateVoteFromDataStore(player: Player): ()
 	hydrateVoteFromData(player)
 end
 
---[[
+--[=[
 	@function init
-	@within ElectionManager
+	@within ElectionSystem
 
 	Initializes the election system (called automatically on first require).
-]]
+]=]
 function ElectionManager.init()
 	Network.init()
 	Data.init()
@@ -167,57 +167,57 @@ function ElectionManager.init()
 	return ElectionManager
 end
 
---[[
+--[=[
 	@method getPhase
-	@within ElectionManager
+	@within ElectionSystem
 	@return ElectionPhase
 
 	Returns the current election phase.
-]]
+]=]
 function ElectionManager:getPhase(): Types.ElectionPhase
 	return timestampManager:getPhase()
 end
 
---[[
+--[=[
 	@method getCountdown
-	@within ElectionManager
+	@within ElectionSystem
 	@return number
 
 	Returns seconds until next phase transition.
-]]
+]=]
 function ElectionManager:getCountdown(): number
 	return timestampManager:getCountdown()
 end
 
---[[
+--[=[
 	@method getStore
-	@within ElectionManager
+	@within ElectionSystem
 	@return Store
 
 	Returns the election store instance.
-]]
+]=]
 function ElectionManager:getStore(): any
 	return store
 end
 
---[[
+--[=[
 	@method getResults
-	@within ElectionManager
+	@within ElectionSystem
 	@return ElectionResult?
 
 	Returns cached election results if available.
-]]
+]=]
 function ElectionManager:getResults(): Types.ElectionResult?
 	return store:getResultsCache()
 end
 
---[[
+--[=[
 	@method calculateResults
-	@within ElectionManager
+	@within ElectionSystem
 	@return ElectionResult
 
 	Calculates election results from recorded votes.
-]]
+]=]
 function ElectionManager:calculateResults(): Types.ElectionResult
 	local ballots = store:getAllVotes()
 	local result = ResultCalculator.calculate(Settings.votingMethod, ballots, store)
@@ -234,27 +234,27 @@ function ElectionManager:calculateResults(): Types.ElectionResult
 	return result
 end
 
---[[
+--[=[
 	@method checkEligibility
-	@within ElectionManager
+	@within ElectionSystem
 	@param player Player
 	@return EligibilityResult
 
 	Checks if a player is eligible to vote.
-]]
+]=]
 function ElectionManager:checkEligibility(player: Player): Types.EligibilityResult
 	return EligibilityChecker.check(player)
 end
 
---[[
+--[=[
 	@method recordVote
-	@within ElectionManager
+	@within ElectionSystem
 	@param player Player
 	@param ballot Ballot
 	@return boolean
 
 	Records a vote and returns success status.
-]]
+]=]
 function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boolean
 	-- Check eligibility
 	local eligibility = EligibilityChecker.check(player)
@@ -320,13 +320,13 @@ function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boole
 	return true
 end
 
---[[
+--[=[
 	@method exportState
-	@within ElectionManager
+	@within ElectionSystem
 	@return table
 
 	Exports the current election state.
-]]
+]=]
 function ElectionManager:exportState(): any
 	return {
 		phase = timestampManager:getPhase(),

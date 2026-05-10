@@ -4,12 +4,11 @@ local Signal = require(script.Parent.Parent.Signal)
 local Types = require(script.Parent.Types)
 local Store = require(script.Parent.Store)
 
---[[
+--[=[
 	@class CoalitionSystem
-	@within ElectionSystem
 
 	Forms coalition governments in parliamentary systems after PR/MMP elections.
-]]
+]=]
 
 local CoalitionSystem = {}
 

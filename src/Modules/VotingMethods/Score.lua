@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Score
-	@within ElectionSystem
 
 	Score/Range voting. Each voter scores each candidate.
 	Candidate with highest average score wins.
-]]
+]=]
 
 local Score = {}
 

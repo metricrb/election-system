@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Approval
-	@within ElectionSystem
 
 	Approval voting. Each voter approves any number of candidates.
 	Candidate with most approvals wins.
-]]
+]=]
 
 local Approval = {}
 

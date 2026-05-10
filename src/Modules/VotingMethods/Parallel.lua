@@ -3,14 +3,13 @@
 local Types = require(script.Parent.Parent.Types)
 local SeatAllocator = require(script.Parent.Parent.SeatAllocator)
 
---[[
+--[=[
 	@class Parallel
-	@within ElectionSystem
 
 	Parallel voting (Japan model). Two independent voting systems run in parallel.
 	Local representatives elected via FPTP; party list elected independently.
 	Systems do NOT compensate each other (unlike MMP).
-]]
+]=]
 
 local Parallel = {}
 

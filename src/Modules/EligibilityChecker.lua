@@ -4,9 +4,8 @@ local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
 local Diagnostics = require(script.Parent.ElectionDiagnostics)
 
---[[
+--[=[
 	@class EligibilityChecker
-	@within ElectionSystem
 
 	Checks voter eligibility based on configured rules:
 	- Banned usernames (case-insensitive)
@@ -15,18 +14,18 @@ local Diagnostics = require(script.Parent.ElectionDiagnostics)
 	- Minimum account age (if enabled)
 
 	First failing check returns its reason; all pass = eligible.
-]]
+]=]
 
 local EligibilityChecker = {}
 
---[[
+--[=[
 	@function check
 	@within EligibilityChecker
 	@param player Player
 	@return EligibilityResult
 
 	Checks if a player is eligible to vote. Returns result with eligible flag and reason string.
-]]
+]=]
 function EligibilityChecker.check(player: Player): Types.EligibilityResult
 	local config = Settings.eligibility
 

@@ -37,8 +37,12 @@ A universal, modular election system for Roblox supporting **14 different voting
 
 Wally-managed libraries (`Fusion`, `Cmdr`, `Iris`, etc.) live in `DevPackages/` and are mirrored under `ReplicatedStorage.Packages` via `default.project.json`. After editing `wally.toml`, run `wally install` and sync with Rojo.
 
+### Place build (`.rbxl`)
+
+`default.project.json` describes a full **DataModel** (a place), not a single Model. Build a `.rbxl` and open it in Studio with **File → Open from File…**. *Insert from File* is only for `.rbxm` assets and will not load this project correctly.
+
 ```bash
-rojo build default.project.json --output ElectionSystem.rbxm
+rojo build default.project.json --output ElectionSystem.rbxl
 ```
 
 ## Publishing

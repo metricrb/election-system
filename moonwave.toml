@@ -4,6 +4,7 @@ gitSourceBranch = "main"
 changelog = false
 
 [docusaurus]
+trailingSlash = true
 onBrokenLinks = "warn"
 onBrokenMarkdownLinks = "warn"
 organizationName = "metricrb"

@@ -21,12 +21,11 @@ local Borda = require(script.Parent.VotingMethods.Borda)
 local Cumulative = require(script.Parent.VotingMethods.Cumulative)
 local Sortition = require(script.Parent.VotingMethods.Sortition)
 
---[[
+--[=[
 	@class ResultCalculator
-	@within ElectionSystem
 
 	Orchestrates voting method execution and result formatting.
-]]
+]=]
 
 local ResultCalculator = {}
 
@@ -47,7 +46,7 @@ local METHODS: { [string]: any } = {
 	Sortition = Sortition,
 }
 
---[[
+--[=[
 	@function calculate
 	@within ResultCalculator
 	@param votingMethod string
@@ -56,13 +55,13 @@ local METHODS: { [string]: any } = {
 	@return Types.ElectionResult
 
 	Calculates election results using the specified voting method.
-]]
---[[
+]=]
+--[=[
 	@function validateBallot
 	@within ResultCalculator
 
 	Uses the active Settings.votingMethod implementation's validateBallot when present.
-]]
+]=]
 function ResultCalculator.validateBallot(ballot: Types.Ballot): { valid: boolean, reason: string }
 	local method = METHODS[Settings.votingMethod]
 	if not method or not method.validateBallot then

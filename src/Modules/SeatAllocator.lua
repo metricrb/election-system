@@ -3,19 +3,18 @@
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
 
---[[
+--[=[
 	@class SeatAllocator
-	@within ElectionSystem
 
 	Allocates seats in multi-seat electoral systems using configurable apportionment methods:
 	- DHondt (divisor, favors larger parties)
 	- SainteLague (divisor, more proportional)
 	- HareNiemeyer (quota, traditional)
-]]
+]=]
 
 local SeatAllocator = {}
 
---[[
+--[=[
 	@function allocate
 	@within SeatAllocator
 	@param partyVotes { [string]: number }
@@ -23,7 +22,7 @@ local SeatAllocator = {}
 	@return { [string]: number }
 
 	Allocates seats based on Settings.seatAllocationMethod.
-]]
+]=]
 function SeatAllocator.allocate(partyVotes: { [string]: number }, totalSeats: number): { [string]: number }
 	local method = Settings.seatAllocationMethod
 
@@ -38,13 +37,13 @@ function SeatAllocator.allocate(partyVotes: { [string]: number }, totalSeats: nu
 	end
 end
 
---[[
+--[=[
 	@function _dhondt
 	@within SeatAllocator
 	@private
 
 	D'Hondt (Jefferson) method divisor apportionment.
-]]
+]=]
 function SeatAllocator._dhondt(partyVotes: { [string]: number }, totalSeats: number): { [string]: number }
 	local seats: { [string]: number } = {}
 	for partyId in pairs(partyVotes) do
@@ -74,13 +73,13 @@ function SeatAllocator._dhondt(partyVotes: { [string]: number }, totalSeats: num
 	return seats
 end
 
---[[
+--[=[
 	@function _sainteLague
 	@within SeatAllocator
 	@private
 
 	Sainte-Laguë (Webster) method divisor apportionment.
-]]
+]=]
 function SeatAllocator._sainteLague(partyVotes: { [string]: number }, totalSeats: number): { [string]: number }
 	local seats: { [string]: number } = {}
 	for partyId in pairs(partyVotes) do
@@ -110,13 +109,13 @@ function SeatAllocator._sainteLague(partyVotes: { [string]: number }, totalSeats
 	return seats
 end
 
---[[
+--[=[
 	@function _hareNiemeyer
 	@within SeatAllocator
 	@private
 
 	Hare-Niemeyer (Hamilton) method quota apportionment.
-]]
+]=]
 function SeatAllocator._hareNiemeyer(partyVotes: { [string]: number }, totalSeats: number): { [string]: number }
 	local seats: { [string]: number } = {}
 	local totalVotes = 0

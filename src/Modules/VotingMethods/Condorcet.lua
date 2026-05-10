@@ -2,13 +2,12 @@
 
 local Types = require(script.Parent.Parent.Types)
 
---[[
+--[=[
 	@class Condorcet
-	@within ElectionSystem
 
 	Condorcet voting. Candidate who beats all others in head-to-head matchups wins.
 	Uses ranked ballots to determine pairwise preferences.
-]]
+]=]
 
 local Condorcet = {}
 

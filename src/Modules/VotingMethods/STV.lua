@@ -4,15 +4,14 @@ local Types = require(script.Parent.Parent.Types)
 local RoundManager = require(script.Parent.Parent.RoundManager)
 local SeatAllocator = require(script.Parent.Parent.SeatAllocator)
 
---[[
+--[=[
 	@class STV
-	@within ElectionSystem
 
 	Single Transferable Vote (Ireland, Australia Senate).
 	Multi-seat system with ranked ballots.
 	Candidates reaching quota elected; surplus votes transferred to next choices.
 	Lowest candidate eliminated repeatedly until all seats filled.
-]]
+]=]
 
 local STV = {}
 

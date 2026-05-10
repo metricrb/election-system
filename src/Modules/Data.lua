@@ -6,12 +6,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ProfileService = require(ReplicatedStorage:WaitForChild("Packages"):WaitForChild("ProfileService"))
 local Settings = require(script.Parent.Parent.Settings)
 
---[[
+--[=[
 	@class Data
-	@within ElectionSystem
 
 	ProfileService integration for persistent player profile data.
-]]
+]=]
 
 local Data = {}
 local profiles: { [number]: any } = {}
