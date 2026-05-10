@@ -13,20 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download Rojo
+      - name: Download Rojo (linux x86_64)
         run: |
-          curl -s https://api.github.com/repos/rojo-rbx/rojo/releases/latest \
+          set -euo pipefail
+          url=$(curl -sL https://api.github.com/repos/rojo-rbx/rojo/releases/latest \
             | grep -oP '"browser_download_url": "\K[^"]+' \
-            | grep 'linux' \
-            | head -1 \
-            | xargs -I {} curl -L {} -o rojo.zip
-          unzip rojo.zip
+            | grep -F 'linux-x86_64' \
+            | head -1)
+          curl -sL "$url" -o rojo.zip
+          unzip -o rojo.zip
           chmod +x rojo
 
       - name: Build .rbxm artifact
         run: ./rojo build default.project.json --output ElectionSystem.rbxm
 
       - name: Create Release (tag push only)
+        id: create_release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/create-release@v1
         env:
