@@ -1,0 +1,16 @@
+title = "ElectionSystem"
+gitRepoUrl = "https://github.com/metricrb/election-system"
+gitSourceBranch = "main"
+changelog = false
+
+[docusaurus]
+onBrokenLinks = "warn"
+onBrokenMarkdownLinks = "warn"
+organizationName = "metricrb"
+projectName = "election-system"
+url = "https://metricrb.github.io"
+baseUrl = "/election-system/"
+tagline = "Universal modular election system for Roblox"
+
+[footer]
+style = "dark"
