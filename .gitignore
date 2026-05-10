@@ -7,3 +7,6 @@
 /Packages
 /wally.lock
 /DevPackages 
+
+# Moonwave static site output
+/build

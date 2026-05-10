@@ -3,9 +3,10 @@
 --[[
 	@class ElectionSystem (ElectionManager)
 	@within ElectionSystem
+	@ignore
 
-	Root module for the universal Roblox election system.
-	Initialize and configure via src/Settings.lua before using.
+	Duplicate of the Rojo entry `init.module.lua`; kept for non-Rojo requires.
+	API docs are generated from `init.module.lua`.
 ]]
 
 local Players = game:GetService("Players")

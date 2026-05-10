@@ -448,7 +448,7 @@ do
 	}
 end
 
------ Service Table -----
+-- ----- Service Table -----
 
 local ProfileService = {
 
@@ -515,7 +515,7 @@ local ProfileService = {
 	}
 --]]
 
------ Private Variables -----
+-- ----- Private Variables -----
 
 local ActiveProfileStores = ProfileService._active_profile_stores
 local AutoSaveList = ProfileService._auto_save_list
@@ -560,7 +560,7 @@ local CustomWriteQueue = {
 	--]]
 }
 
------ Utils -----
+-- ----- Utils -----
 
 local function DeepCopyTable(t)
 	local copy = {}
@@ -590,7 +590,7 @@ local function ReconcileTable(target, template)
 	end
 end
 
------ Private functions -----
+-- ----- Private functions -----
 
 local function IdentifyProfile(store_name, store_scope, key)
 	return string.format('[Store:"%s";%sKey:"%s"]', store_name, store_scope ~= nil and string.format('Scope:"%s";', store_scope) or "", key)
@@ -1156,7 +1156,7 @@ local function SaveProfileAsync(profile, release_from_session, is_overwriting)
 	ActiveProfileSaveJobs = ActiveProfileSaveJobs - 1
 end
 
------ Public functions -----
+-- ----- Public functions -----
 
 -- GlobalUpdates object:
 
@@ -2322,7 +2322,7 @@ function ProfileService.IsLive() --> [bool] -- (CAN YIELD!!!)
 	return UseMockDataStore == false
 end
 
------ Initialize -----
+-- ----- Initialize -----
 
 if IsStudio == true then
 	IsLiveCheckActive = true
@@ -2354,7 +2354,7 @@ if IsStudio == true then
 	end)
 end
 
------ Connections -----
+-- ----- Connections -----
 
 -- Auto saving and issue queue managing:
 RunService.Heartbeat:Connect(function()
