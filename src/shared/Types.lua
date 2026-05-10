@@ -1,83 +1,29 @@
 --!strict
 
---[=[
-	@module Types
-	@tag Core API
-
+--[[
 	Type definitions for the election system.
 
 	This module exports all types used throughout ElectionSystem for type checking, validation,
 	and API documentation. All client code should import Types for proper type annotations.
 
-	## Key Types
+	Key types:
+	- ElectionPhase — Current election state
+	- VotingMethod — Counting algorithm selection
+	- Candidate/Party — Election participants
+	- Ballot/VoteRecord — Voting data structures
+	- ElectionResult — Calculated outcomes
+]]
 
-	- **ElectionPhase** — Current election state
-	- **VotingMethod** — Counting algorithm selection
-	- **Candidate/Party** — Election participants
-	- **Ballot/VoteRecord** — Voting data structures
-	- **ElectionResult** — Calculated outcomes
-
-	## Configuration
-
-	All election behavior is controlled via ElectionConfig, loaded from Settings.lua:
-	- Voting method and government type
-	- Eligibility and fraud detection rules
-	- Candidates, parties, and districts
-	- UI and administrative settings
-
-	## Usage
-
-	```lua
-	local Types = require(game:GetService("ServerScriptService").ElectionManager).Types
-
-	local ballot: Types.Ballot = {
-		{ candidateId = "alice", rank = 1 },
-		{ candidateId = "bob", rank = 2 },
-	}
-	```
-]=]
-
---[=[
-	@type ElectionPhase
-	@within Types
-	Possible election states: "Scheduled", "Open", "Closed", "ResultsOut", "Coalition", or "Formed"
-]=]
 export type ElectionPhase = "Scheduled" | "Open" | "Closed" | "ResultsOut" | "Coalition" | "Formed"
 
---[=[
-	@type VotingMethod
-	@within Types
-	14 different voting/counting methods: FPTP, TwoRound, IRV, Approval, Score, STAR, STV,
-	PartyListPR, MMP, Parallel, Condorcet, Borda, Cumulative, or Sortition
-]=]
 export type VotingMethod = "FPTP" | "TwoRound" | "IRV" | "Approval" | "Score" | "STAR" | "STV" | "PartyListPR" | "MMP" | "Parallel" | "Condorcet" | "Borda" | "Cumulative" | "Sortition"
 
---[=[
-	@type GovernmentType
-	@within Types
-	Electoral system type: Presidential, Parliamentary, SemiPresidential, or ConstitutionalMonarchy
-]=]
 export type GovernmentType = "Presidential" | "Parliamentary" | "SemiPresidential" | "ConstitutionalMonarchy"
 
---[=[
-	@type SeatSystem
-	@within Types
-	How seats are distributed: SingleMemberDistrict, MultiMemberDistrict, AtLarge, or Federal
-]=]
 export type SeatSystem = "SingleMemberDistrict" | "MultiMemberDistrict" | "AtLarge" | "Federal"
 
---[=[
-	@type ApportionmentMethod
-	@within Types
-	Algorithm for multi-seat allocation: DHondt, SainteLague, or HareNiemeyer
-]=]
 export type ApportionmentMethod = "DHondt" | "SainteLague" | "HareNiemeyer"
 
---[=[
-	@type AltHeuristic
-	@within Types
-	Alt detection method: "age" (account age), "rapid" (voting speed), or "both"
-]=]
 export type AltHeuristic = "age" | "rapid" | "both"
 
 --[=[

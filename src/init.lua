@@ -56,7 +56,7 @@ end
 
 --[=[
 	@function init
-	@within ElectionSystem
+	@within ElectionManager
 
 	Initializes the election system (called automatically on first require).
 ]=]
@@ -119,7 +119,7 @@ end
 
 --[=[
 	@method getPhase
-	@within ElectionSystem
+	@within ElectionManager
 	@return ElectionPhase
 
 	Returns the current election phase.
@@ -130,7 +130,7 @@ end
 
 --[=[
 	@method getCountdown
-	@within ElectionSystem
+	@within ElectionManager
 	@return number
 
 	Returns seconds until next phase transition.
@@ -141,7 +141,7 @@ end
 
 --[=[
 	@method getStore
-	@within ElectionSystem
+	@within ElectionManager
 	@return Store
 
 	Returns the election store instance.
@@ -152,7 +152,7 @@ end
 
 --[=[
 	@method getResults
-	@within ElectionSystem
+	@within ElectionManager
 	@return ElectionResult?
 
 	Returns cached election results if available.
@@ -163,7 +163,7 @@ end
 
 --[=[
 	@method calculateResults
-	@within ElectionSystem
+	@within ElectionManager
 	@return ElectionResult
 
 	Calculates election results from recorded votes.
@@ -186,7 +186,7 @@ end
 
 --[=[
 	@method checkEligibility
-	@within ElectionSystem
+	@within ElectionManager
 	@param player Player
 	@return EligibilityResult
 
@@ -198,7 +198,7 @@ end
 
 --[=[
 	@method recordVote
-	@within ElectionSystem
+	@within ElectionManager
 	@param player Player
 	@param ballot Ballot
 	@return boolean
@@ -256,7 +256,7 @@ end
 
 --[=[
 	@method exportState
-	@within ElectionSystem
+	@within ElectionManager
 	@return table
 
 	Exports the current election state.
