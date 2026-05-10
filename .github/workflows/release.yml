@@ -28,7 +28,7 @@ jobs:
           chmod +x rojo
 
       - name: Build .rbxl place file
-        run: ./rojo build default.project.json --output ElectionSystem.rbxl
+        run: ./rojo build release.project.json --output ElectionSystem.rbxl
 
       - name: Verify artifact
         run: test -s ElectionSystem.rbxl && ls -la ElectionSystem.rbxl

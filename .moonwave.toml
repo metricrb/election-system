@@ -4,20 +4,34 @@ subtitle = "Universal Roblox Election System"
 
 navbar = [
   { name = "GitHub", url = "https://github.com/metricrb/election-system" },
+  { name = "Quick Start", url = "/election-system/#getting-started" },
 ]
 
 classOrder = [
   "ElectionManager",
-  "VotingMethod",
-  "ElectionConfig",
-  "Candidate",
-  "Party",
+  "Store",
+  "Network",
+  "Data",
+  "ResultCalculator",
+  "VotingMethods",
+  "SeatAllocator",
+  "DistrictManager",
+  "CoalitionSystem",
+  "RoundManager",
+  "EligibilityChecker",
+  "AltDetector",
+  "BallotFormatter",
+  "TimestampManager",
+  "ElectionDiagnostics",
 ]
 
 classGroups = [
   { name = "Core", classes = ["ElectionManager"] },
-  { name = "Types", classes = ["ElectionConfig", "Candidate", "Party", "Ballot", "VoteRecord"] },
-  { name = "Electoral Systems", classes = ["SeatAllocator", "DistrictManager", "CoalitionSystem"] },
+  { name = "State Management", classes = ["Store", "Network", "Data"] },
+  { name = "Elections & Results", classes = ["ResultCalculator", "RoundManager", "VotingMethods"] },
+  { name = "Seats & Districts", classes = ["SeatAllocator", "DistrictManager", "CoalitionSystem"] },
+  { name = "Validation & Detection", classes = ["EligibilityChecker", "AltDetector"] },
+  { name = "Utilities", classes = ["BallotFormatter", "TimestampManager", "ElectionDiagnostics"] },
 ]
 
 output = "docs"

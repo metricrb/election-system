@@ -1,0 +1,108 @@
+{
+  "name": "election-system",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "ElectionSystemShared": {
+        "$className": "Folder",
+        "$path": "src/shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "ElectionSystem": {
+        "$path": "src/init.module.lua",
+        "Modules": {
+          "$path": "src/Modules"
+        },
+        "shared": {
+          "$path": "src/shared"
+        },
+        "client": {
+          "$path": "src/client",
+          "$exclude": [
+            "**ElectionDebug.lua"
+          ]
+        },
+        "Cmdr": {
+          "$path": "src/Cmdr"
+        },
+        "Example": {
+          "$path": "src/Example"
+        },
+        "Settings": {
+          "$path": "src/Settings.lua"
+        },
+        "Signal": {
+          "$path": "src/Signal.lua"
+        }
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterCharacterScripts": {
+        "$className": "Folder"
+      },
+      "StarterPlayerScripts": {
+        "ClientModules": {
+          "$path": "src/client",
+          "$exclude": [
+            "**ElectionDebug.lua"
+          ]
+        },
+        "ElectionSystemClient": {
+          "$path": "src/client_bootstrap"
+        }
+      }
+    },
+
+    "Workspace": {
+      "$properties": {
+        "FilteringEnabled": true
+      },
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Color": [
+            0.38823,
+            0.37254,
+            0.38823
+          ],
+          "Locked": true,
+          "Position": [
+            0,
+            -10,
+            0
+          ],
+          "Size": [
+            512,
+            20,
+            512
+          ]
+        }
+      }
+    },
+
+    "Lighting": {
+      "$properties": {
+        "Ambient": [
+          0,
+          0,
+          0
+        ],
+        "Brightness": 2,
+        "GlobalShadows": true,
+        "Outlines": false,
+        "Technology": "Voxel"
+      }
+    },
+
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}
