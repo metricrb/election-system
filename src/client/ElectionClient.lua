@@ -20,7 +20,13 @@ local remoteFolder: Folder? = nil
 local initialized = false
 local lastSubmitOk: boolean? = nil
 
-local ElectionDebug = require(script.Parent:WaitForChild("ElectionDebug"))
+local ElectionDebug: any = nil
+do
+	local debugModule = script.Parent:FindFirstChild("ElectionDebug")
+	if debugModule then
+		ElectionDebug = require(debugModule)
+	end
+end
 
 local function normalizeCountdown(value: any): number
 	if type(value) == "number" then
@@ -91,9 +97,11 @@ function ElectionClient.init()
 		end,
 	})
 
-	ElectionDebug.init(remoteFolder :: Folder, function()
-		return lastSubmitOk
-	end)
+	if ElectionDebug then
+		ElectionDebug.init(remoteFolder :: Folder, function()
+			return lastSubmitOk
+		end)
+	end
 
 	-- Listen for phase changes
 	local phaseChangedEvent = remoteFolder:WaitForChild("PhaseChanged") :: RemoteEvent
