@@ -100,4 +100,4 @@ The only file you really need to touch is **Settings.lua**. Everything else is i
 
 ---
 
-**Need help?** Check the other guides or see the [full API documentation](../README.md).
+**Need help?** Check the other guides or see the [full documentation hub](README.md).
