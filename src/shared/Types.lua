@@ -14,23 +14,25 @@
 	- ElectionResult — Calculated outcomes
 ]]
 
+-- Election phases
 export type ElectionPhase = "Scheduled" | "Open" | "Closed" | "ResultsOut" | "Coalition" | "Formed"
 
+-- Voting methods
 export type VotingMethod = "FPTP" | "TwoRound" | "IRV" | "Approval" | "Score" | "STAR" | "STV" | "PartyListPR" | "MMP" | "Parallel" | "Condorcet" | "Borda" | "Cumulative" | "Sortition"
 
+-- Government types
 export type GovernmentType = "Presidential" | "Parliamentary" | "SemiPresidential" | "ConstitutionalMonarchy"
 
+-- Seat system types
 export type SeatSystem = "SingleMemberDistrict" | "MultiMemberDistrict" | "AtLarge" | "Federal"
 
+-- Apportionment methods for multi-seat allocation
 export type ApportionmentMethod = "DHondt" | "SainteLague" | "HareNiemeyer"
 
+-- Alt detection heuristics
 export type AltHeuristic = "age" | "rapid" | "both"
 
---[=[
-	@type Party
-	@within Types
-	A political party in the election. Must set decalId (Roblox decal ID) and RGB color.
-]=]
+-- Party definition
 export type Party = {
 	partyId: string,
 	name: string,
@@ -39,11 +41,7 @@ export type Party = {
 	description: string,
 }
 
---[=[
-	@type Candidate
-	@within Types
-	A candidate running for office. Optional partyId for party-based voting methods.
-]=]
+-- Candidate definition
 export type Candidate = {
 	candidateId: string,
 	userId: string,
@@ -53,22 +51,14 @@ export type Candidate = {
 	policyTags: { string },
 }
 
---[=[
-	@type District
-	@within Types
-	A geographic or demographic district for district-based elections.
-]=]
+-- District definition
 export type District = {
 	districtId: string,
 	name: string,
 	seats: number,
 }
 
---[=[
-	@type EligibilityConfig
-	@within Types
-	Rules determining who can vote: group rank, account age, and ban lists.
-]=]
+-- Eligibility configuration
 export type EligibilityConfig = {
 	minGroupRank: { groupId: number, minRank: number },
 	minAccountAgeDays: number,
@@ -76,11 +66,7 @@ export type EligibilityConfig = {
 	bannedUsernames: { string },
 }
 
---[=[
-	@type AltDetectionConfig
-	@within Types
-	Settings for detecting and handling account duplicates (alt accounts).
-]=]
+-- Alt detection configuration
 export type AltDetectionConfig = {
 	enabled: boolean,
 	onDetect: "KickWithScreen" | "InvalidateVote",
@@ -91,33 +77,20 @@ export type AltDetectionConfig = {
 	rapidVoteThresholdSeconds: number,
 }
 
---[=[
-	@type CmdrConfig
-	@within Types
-	Administrative access control for Cmdr commands.
-]=]
+-- CMDR configuration
 export type CmdrConfig = {
 	adminGroupId: number,
 	adminMinRank: number,
 }
 
---[=[
-	@type UiConfig
-	@within Types
-	Customization for the client UI: colors, title, avatar settings.
-]=]
+-- UI configuration
 export type UiConfig = {
 	placeholderAvatarId: string,
 	accentColour: { r: number, g: number, b: number },
 	electionTitle: string,
 }
 
---[=[
-	@type ElectionConfig
-	@within Types
-	Master configuration object. Passed to Settings.lua and distributed to clients.
-	Controls all election behavior: voting rules, candidates, eligibility, phases.
-]=]
+-- Master election configuration
 export type ElectionConfig = {
 	testRunId: string?,
 	countryId: string,
@@ -147,13 +120,7 @@ export type ElectionConfig = {
 	ui: UiConfig,
 }
 
---[=[
-	@type BallotEntry
-	@within Types
-	A single vote entry on a ballot. Fields vary by voting method:
-	- rank/score for rated methods
-	- approved for approval voting
-]=]
+-- Ballot entry (varies by voting method)
 export type BallotEntry = {
 	candidateId: string,
 	rank: number?,
@@ -161,18 +128,9 @@ export type BallotEntry = {
 	approved: boolean?,
 }
 
---[=[
-	@type Ballot
-	@within Types
-	Array of BallotEntry; represents one player's vote.
-]=]
 export type Ballot = { BallotEntry }
 
---[=[
-	@type VoteRecord
-	@within Types
-	Persisted record of one player's vote with metadata.
-]=]
+-- Vote record
 export type VoteRecord = {
 	userId: string,
 	ballot: Ballot,
@@ -182,22 +140,14 @@ export type VoteRecord = {
 	districtId: string?,
 }
 
---[=[
-	@type WinnerResult
-	@within Types
-	Intermediate result from vote counting (before seat allocation).
-]=]
+-- Winner result from a voting method
 export type WinnerResult = {
 	winner: Candidate | { Candidate },
 	voteShare: { [string]: number },
 	roundHistory: { any }?,
 }
 
---[=[
-	@type SeatAllocation
-	@within Types
-	Multi-seat distribution by party or group.
-]=]
+-- Seat allocation result
 export type SeatAllocation = {
 	[string]: {
 		seats: number,
@@ -205,11 +155,7 @@ export type SeatAllocation = {
 	}
 }
 
---[=[
-	@type ElectionResult
-	@within Types
-	Complete election outcome: winners, vote shares, seats, coalitions.
-]=]
+-- Full election result
 export type ElectionResult = {
 	phase: ElectionPhase,
 	votesRecorded: number,
@@ -225,21 +171,13 @@ export type ElectionResult = {
 	calculatedAt: number,
 }
 
---[=[
-	@type EligibilityResult
-	@within Types
-	Outcome of eligibility check: pass/fail with reason.
-]=]
+-- Eligibility check result
 export type EligibilityResult = {
 	eligible: boolean,
 	reason: string,
 }
 
---[=[
-	@type AltFlagResult
-	@within Types
-	Outcome of alt detection check: flagged/not, with action (kick or invalidate).
-]=]
+-- Alt detection result
 export type AltFlagResult = {
 	flagged: boolean,
 	reason: string,
@@ -247,11 +185,7 @@ export type AltFlagResult = {
 	shouldInvalidate: boolean,
 }
 
---[=[
-	@type BallotTemplate
-	@within Types
-	Client-side ballot UI configuration: allowed selections, scoring, ranking rules.
-]=]
+-- Ballot template for UI
 export type BallotTemplate = {
 	votingMethod: VotingMethod,
 	candidates: { Candidate },
