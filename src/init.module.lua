@@ -65,6 +65,7 @@ local DistrictManager = require(script.Modules.DistrictManager)
 local CoalitionSystem = require(script.Modules.CoalitionSystem)
 local CmdrSetup = require(script.Cmdr.CmdrSetup)
 local Diagnostics = require(script.Modules.ElectionDiagnostics)
+local DiscordNotifier = require(script.Modules.DiscordNotifier)
 
 local ElectionManager = {}
 ElectionManager.__index = ElectionManager
@@ -158,6 +159,8 @@ function ElectionManager.init()
 
 	local requestConfigRemote = Network.getRemote("RequestElectionConfig")
 	if requestConfigRemote and requestConfigRemote:IsA("RemoteFunction") then
+		--[[ Client-visible election UI config only.
+			Never include `discord`, `cmdr`, eligibility internals, datastore keys, or other secrets here. ]]
 		requestConfigRemote.OnServerInvoke = function()
 			return {
 				votingMethod = Settings.votingMethod,
@@ -189,6 +192,9 @@ function ElectionManager.init()
 	if phaseChangedRemote and phaseChangedRemote:IsA("RemoteEvent") then
 		timestampManager.PhaseChanged:connect(function(newPhase: Types.ElectionPhase)
 			phaseChangedRemote:FireAllClients(newPhase)
+		end)
+		timestampManager.PhaseChanged:connect(function(newPhase: Types.ElectionPhase)
+			DiscordNotifier.notifyElectionPhase(newPhase)
 		end)
 	end
 
@@ -299,6 +305,7 @@ function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boole
 	local eligibility = EligibilityChecker.check(player)
 	if not eligibility.eligible then
 		Diagnostics.log(("VOTE denied user=%s phase=ELIGIBILITY msg=%s"):format(player.Name, eligibility.reason))
+		DiscordNotifier.notifyVoteDenied(player, "ineligible", eligibility.reason)
 		return false
 	end
 
@@ -309,6 +316,7 @@ function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boole
 		Diagnostics.log(
 			("VOTE denied user=%s phase=DUPLICATE_VOTE (dual voting not permitted)"):format(player.Name)
 		)
+		DiscordNotifier.notifyVoteDenied(player, "duplicate_vote", "Player already has a recorded vote.")
 		return false
 	end
 
@@ -317,6 +325,7 @@ function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boole
 		Diagnostics.log(
 			("VOTE denied user=%s phase=BALLOT_INVALID reason=%s"):format(player.Name, ballotCheck.reason)
 		)
+		DiscordNotifier.notifyVoteDenied(player, "invalid_ballot", ballotCheck.reason)
 		warn("[ElectionSystem] Invalid ballot: " .. ballotCheck.reason)
 		return false
 	end
@@ -342,13 +351,16 @@ function ElectionManager:recordVote(player: Player, ballot: Types.Ballot): boole
 			)
 			warn("[ElectionSystem] Vote invalidated (alt detection): " .. altFlag.reason)
 			store:removeVote(uid)
+			DiscordNotifier.notifyAltDetection(player, altFlag.reason, "invalidated")
 		elseif altFlag.shouldKick then
 			Diagnostics.log(
 				("VOTE kick path user=%s altReason=%s (client shows kick screen)"):format(player.Name, altFlag.reason)
 			)
+			DiscordNotifier.notifyAltDetection(player, altFlag.reason, "kick")
 		end
 	else
 		Diagnostics.log(("VOTE recorded ok user=%s uid=%s"):format(player.Name, uid))
+		DiscordNotifier.notifyVoteRecorded(player, ballot, districtId)
 	end
 
 	local stateUpdated = Network.getRemote("ElectionStateUpdated")

@@ -202,6 +202,37 @@ cmdr = {
 
 If you have admin commands, set your group ID and minimum rank. Otherwise leave as 0.
 
+## Discord webhook (optional, server-only)
+
+You can mirror **admin-facing** alerts to a Discord channel (successful votes, rejected votes including eligibility/ban-rule denials, alt-detection signals, and optionally phase transitions). Runs **only on the server** inside `DiscordNotifier`; it does **not** use Cmdr roles (your Discord admins see the channel you choose).
+
+### Security
+
+- The webhook URL belongs in **`Settings.lua` on the server only**. Treat it like a password: anyone with the URL can post to your channel.
+- **`RequestElectionConfig` never sends `discord`** (nor `cmdr`, `countryId`, or full `Settings`) to clients. Only UI-safe fields — voting method, seats, threshold, allocation method, `ui`, `parties`, `candidates` — are returned.
+
+### Requirements
+
+1. In **Home → Game Settings → Security**, turn **Allow HTTP Requests** **ON** (published games may already allow this depending on configuration). Without HTTP access, webhook posts fail silently with a `[DiscordNotifier]` warning in server output.
+
+### Configuration (`discord` block)
+
+```lua
+discord = {
+    enabled = false,              -- set true after pasting webhookUrl
+    webhookUrl = "",               -- full URL from Discord: Server Settings → Integrations → Webhooks
+    botUsername = "ElectionNotifier",  -- optional display name on Discord
+    notifyVoteRecorded = true,      -- votes that stay recorded (not alt-flag invalidated)
+    notifyVoteDenied = true,        -- ineligible / duplicate vote / invalid ballot
+    notifyAltFlag = true,           -- alt heuristic triggered (invalidate or kick path)
+    notifyPhaseChanges = false,     -- set true if you want every phase transition posted
+},
+```
+
+If `enabled` is `false`, or `webhookUrl` is empty, nothing is posted.
+
+Discord webhook overview: https://discord.com/developers/docs/resources/webhook
+
 ## Government & Seat Settings
 
 ```lua
@@ -263,6 +294,21 @@ altDetection = {
     rapidVoteThresholdSeconds = 2,
 },
 
+cmdr = {
+    adminGroupId = 0,
+    adminMinRank = 255,
+},
+
+discord = {
+    enabled = false,
+    webhookUrl = "",
+    botUsername = "ElectionNotifier",
+    notifyVoteRecorded = true,
+    notifyVoteDenied = true,
+    notifyAltFlag = true,
+    notifyPhaseChanges = false,
+},
+
 ui = {
     electionTitle = "Presidential Election",
     accentColour = { r = 0, g = 100, b = 255 },
@@ -291,6 +337,11 @@ After editing Settings.lua:
 
 **"Can't vote" or "You are ineligible"**
 - Check your `eligibility` settings. You might have set a group requirement or ban list that blocks yourself.
+
+**Discord webhook not firing**
+- Set `discord.enabled = true` and paste a valid webhook URL (`https://discord.com/api/webhooks/...`).
+- Enable **Allow HTTP Requests** under Game Settings → Security.
+- If the URL leaked, regenerate the webhook in Discord and update `webhookUrl`.
 
 ---
 

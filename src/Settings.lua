@@ -87,6 +87,17 @@ local Settings: Types.ElectionConfig = {
 		adminMinRank = 255,
 	},
 
+	-- DISCORD: server-only. Not sent to clients (see RequestElectionConfig whitelist in init.module.lua).
+	discord = {
+		enabled = false,
+		webhookUrl = "",
+		botUsername = "ElectionNotifier",
+		notifyVoteRecorded = true,
+		notifyVoteDenied = true,
+		notifyAltFlag = true,
+		notifyPhaseChanges = false,
+	},
+
 	-- UI
 	ui = {
 		placeholderAvatarId = "rbxassetid://0",

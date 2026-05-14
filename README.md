@@ -28,6 +28,7 @@ A universal, modular election system for Roblox supporting **14 different voting
 
 ### Supporting Systems
 - Electoral thresholds, Coalition forming, Turnout requirements, Compulsory voting, Electoral college, Recall elections, Referendums, Primaries, Alt detection
+- **Discord webhooks** (optional): configurable in `Settings.discord`; server-only posts for admin moderation channels — see [Settings guide](docs/SETTINGS_SETUP.md#discord-webhook-optional-server-only)
 
 ## Quick Start
 

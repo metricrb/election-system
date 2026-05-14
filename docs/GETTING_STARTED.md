@@ -29,6 +29,8 @@ Without DataStore, votes won't save and players will lose their votes if the ser
 
 ⚠️ **Important:** If you don't do this, you'll see DataStore errors and votes won't save.
 
+**(Optional)** If you turn on Discord notifications later, you also need **Allow HTTP Requests** on in Game Settings → Security — see [Settings — Discord webhook](SETTINGS_SETUP.md#discord-webhook-optional-server-only).
+
 ## Step 3: Configure Your Election
 
 The election settings live in one file: **ServerScriptService → ElectionManager → Settings.lua**
@@ -39,6 +41,7 @@ See the [Settings Configuration Guide](SETTINGS_SETUP.md) for detailed instructi
 - Setting voting times
 - Eligibility rules
 - Alt detection (to prevent cheating)
+- Discord webhooks for staff channels (optional)
 
 ## Step 4: Test In Studio
 
