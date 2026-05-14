@@ -1,11 +1,14 @@
 --!strict
 
 --[=[
-	Posts admin-only Discord webhook messages (server-side). Configure in Settings.discord.
+	@class DiscordNotifier
+	@tag Server Integration
+
+	Posts admin-only Discord webhook messages (server-side). Configure in `Settings.discord`.
 
 	Requires HttpService HTTP requests enabled in Game Settings.
 
-	Discord payload docs: https://discord.com/developers/docs/resources/webhook
+	See Discord webhook payload reference: developers/docs/resources/webhook (Discord API docs).
 ]=]
 
 local HttpService = game:GetService("HttpService")
