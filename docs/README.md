@@ -279,6 +279,10 @@ For detailed API reference of all modules:
 
 See the generated Moonwave API docs for complete references.
 
+## Recommended Studio tooling
+
+For **inspecting and visualizing** election-related data (for example DataStore profiles, vote records, or other tables while you test in Studio), this Creator Store **plugin** is worth installing: [Roblox Creator Store — asset 701506235](https://create.roblox.com/store/asset/701506235). Add it from Studio via **Plugins** (Toolbox / Creator Store) using that link or the asset id.
+
 ## Performance Notes
 
 - **Large elections (1000+ votes):** IRV might be slow. Use FPTP for speed.

@@ -63,6 +63,10 @@ If you've published this to your actual game:
 
 If you use **`Settings.discord`** to notify an admin Discord channel, the server must be allowed to call outbound HTTP (**Home → Game Settings → Security → Allow HTTP Requests → ON**). This is independent of DataStore but uses the same **Security** panel. Full setup: [Settings — Discord webhook](SETTINGS_SETUP.md#discord-webhook-optional-server-only).
 
+### Optional: Studio plugin for data visualization
+
+To **inspect or visualize** stored data while testing (for example vote profiles or related keys), this Creator Store plugin is a good fit: [asset 701506235](https://create.roblox.com/store/asset/701506235). More context: [Recommended Studio tooling](README.md#recommended-studio-tooling).
+
 ## Step 2: Test That DataStore Works
 
 After enabling, test it:
