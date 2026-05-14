@@ -83,6 +83,17 @@ export type CmdrConfig = {
 	adminMinRank: number,
 }
 
+-- Discord webhook (server-only admin log channel; webhook URL never sent to clients)
+export type DiscordWebhookConfig = {
+	enabled: boolean,
+	webhookUrl: string,
+	botUsername: string,
+	notifyVoteRecorded: boolean,
+	notifyVoteDenied: boolean,
+	notifyAltFlag: boolean,
+	notifyPhaseChanges: boolean,
+}
+
 -- UI configuration
 export type UiConfig = {
 	placeholderAvatarId: string,
@@ -117,6 +128,7 @@ export type ElectionConfig = {
 	districts: { District },
 
 	cmdr: CmdrConfig,
+	discord: DiscordWebhookConfig,
 	ui: UiConfig,
 }
 

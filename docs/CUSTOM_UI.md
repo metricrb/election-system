@@ -336,7 +336,7 @@ Each ballot is an array of entries. Format depends on the voting method:
 |--------|-----------|---------|---------|
 | **SubmitVote** | Client → Server | Submit a ballot | `submitVoteRemote:InvokeServer(ballot)` |
 | **RequestState** | Client → Server | Get current phase, votes, results | `requestStateRemote:InvokeServer()` |
-| **RequestElectionConfig** | Client → Server | Get candidates, parties, voting method | `requestConfigRemote:InvokeServer()` |
+| **RequestElectionConfig** | Client → Server | Safe UI subset: method, counts, candidates, parties, `ui` (no webhook / admin secrets) | `requestConfigRemote:InvokeServer()` |
 | **RequestDebugState** | Client → Server | Get debug info (phase, countdown) | `debugRemote:InvokeServer()` |
 
 ## Remote Events Reference

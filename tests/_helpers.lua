@@ -26,6 +26,16 @@ local function makeConfig(method: Types.VotingMethod): Types.ElectionConfig
 		},
 		districts = {},
 		cmdr = { adminGroupId = 0, adminMinRank = 255 },
+		clearPlayerVoteOnJoin = false,
+		discord = {
+			enabled = false,
+			webhookUrl = "",
+			botUsername = "",
+			notifyVoteRecorded = false,
+			notifyVoteDenied = false,
+			notifyAltFlag = false,
+			notifyPhaseChanges = false,
+		},
 		ui = { placeholderAvatarId = "", accentColour = { r = 0, g = 0, b = 0 }, electionTitle = "" },
 	}
 end

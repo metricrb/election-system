@@ -8,7 +8,7 @@ ElectionSystem is a universal, multi-method voting system for Roblox. It support
 
 1. **[Getting Started](GETTING_STARTED.md)** — Open the place file and verify it works (5 minutes)
 2. **[DataStore Setup](DATASTORE_SETUP.md)** — Enable vote persistence (critical!)
-3. **[Settings Configuration](SETTINGS_SETUP.md)** — Add candidates and configure your election
+3. **[Settings Configuration](SETTINGS_SETUP.md)** — Add candidates and configure your election (optional [Discord webhook](SETTINGS_SETUP.md#discord-webhook-optional-server-only) for staff alerts)
 4. **[Custom UI Implementation](CUSTOM_UI.md)** — Build a custom voting interface
 
 ## What Can It Do?
@@ -25,7 +25,7 @@ ElectionSystem is a universal, multi-method voting system for Roblox. It support
 
 ### The Three Parts of ElectionSystem
 
-1. **Settings (Your Config)** — Customize candidates, voting method, times, eligibility
+1. **Settings (Your Config)** — Customize candidates, voting method, times, eligibility (optional **`discord`** block for admin-only webhook posts; never sent to clients)
 2. **ElectionManager (Core System)** — Records votes, calculates results, manages state
 3. **Your UI (What Players See)** — Any GUI you build that connects to the system via RemoteFunction
 

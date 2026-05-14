@@ -23,6 +23,7 @@ Start here if you downloaded `ElectionSystem.rbxl` and just want to get it worki
    - Set voting method (FPTP, IRV, Approval, etc.)
    - Set voting times
    - Configure eligibility rules
+   - *(Optional)* [Discord webhook](SETTINGS_SETUP.md#discord-webhook-optional-server-only) for admin channel notifications
 
 4. **[Custom UI Implementation](CUSTOM_UI.md)** ← Create your own voting booth
    - Build custom voting interface
@@ -34,6 +35,7 @@ Start here if you downloaded `ElectionSystem.rbxl` and just want to get it worki
 ```
 □ Open ElectionSystem.rbxl in Roblox Studio
 □ Enable DataStore (Game Settings → Security)
+□ Allow HTTP Requests (same Security panel — only if you use Discord webhook in Settings)
 □ Verify DataStore works (check Output panel)
 □ Edit Settings.lua with your candidates and voting method
 □ Test voting in Studio
@@ -73,6 +75,7 @@ Results sent to all clients
 1. **Settings (Your Config)**
    - File: `ServerScriptService → ElectionManager → Settings.lua`
    - Controls: candidates, voting method, times, eligibility
+   - Optional **`discord`** block: server-only webhook (never sent to clients via `RequestElectionConfig`)
    - You edit this to customize your election
 
 2. **ElectionManager (Core System)**
@@ -118,6 +121,7 @@ ServerScriptService/
 │   ├── Modules/
 │   │   ├── Store.lua                   ← In-memory vote storage
 │   │   ├── Data.lua                    ← DataStore persistence
+│   │   ├── DiscordNotifier.lua         ← Optional Discord webhook (server-only)
 │   │   ├── Network.lua                 ← Client/server communication
 │   │   ├── ResultCalculator.lua        ← Vote counting
 │   │   ├── EligibilityChecker.lua      ← Voter validation
@@ -200,11 +204,16 @@ local state = requestStateRemote:InvokeServer()
 ```
 
 ### RequestElectionConfig
-Get candidates, parties, voting method
+Safe **client UI** subset only (explicit server whitelist — no webhook, no Cmdr/eligibility payloads):
+
 ```lua
 local config = requestConfigRemote:InvokeServer()
--- Returns: { candidates, parties, votingMethod, ... }
+-- Returns:
+-- votingMethod, governmentType, seatSystem, seats, threshold, seatAllocationMethod,
+-- ui, parties, candidates
 ```
+
+Do **not** add secrets (e.g. `discord.webhookUrl`, `cmdr`) to this return table in server code.
 
 ## Remote Events (For UI Developers)
 
@@ -263,6 +272,7 @@ For detailed API reference of all modules:
 - **ResultCalculator** — Vote counting algorithms
 - **EligibilityChecker** — Voter validation
 - **AltDetector** — Fraud detection
+- **DiscordNotifier** — Optional Discord webhook for admin-visible vote/denial/alt notices (configured in Settings)
 - **BallotFormatter** — Vote formatting
 - **Types** — TypeScript-style type definitions
 - **VotingMethods** — Individual voting algorithm implementations

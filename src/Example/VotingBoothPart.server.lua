@@ -7,6 +7,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local electionHolder = ServerScriptService:WaitForChild("ElectionSystem", 30)
 assert(electionHolder and electionHolder:IsA("ModuleScript"), "[VotingBooth] ElectionSystem module missing.")
 local ElectionSystem = require(electionHolder :: ModuleScript)
+local DiscordNotifier = require((electionHolder :: Instance):WaitForChild("Modules"):WaitForChild("DiscordNotifier"))
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -65,18 +66,17 @@ local function setupVotingBooth(part: Part)
 
 		local phase = ElectionSystem:getPhase()
 		if phase ~= "Open" then
+			local closedMsg = "Voting is currently closed. Current phase: " .. tostring(phase)
 			local ineligibleEvent = remotes:FindFirstChild("IneligibleResult")
 			if ineligibleEvent and ineligibleEvent:IsA("RemoteEvent") then
-				ineligibleEvent:FireClient(
-					player,
-					"Voting is currently closed. Current phase: " .. tostring(phase)
-				)
+				ineligibleEvent:FireClient(player, closedMsg)
 			end
 			return
 		end
 
 		local eligibility = ElectionSystem:checkEligibility(player)
 		if not eligibility.eligible then
+			DiscordNotifier.notifyVoteDenied(player, "ineligible", eligibility.reason)
 			local ineligibleEvent = remotes:FindFirstChild("IneligibleResult")
 			if ineligibleEvent and ineligibleEvent:IsA("RemoteEvent") then
 				ineligibleEvent:FireClient(player, tostring(eligibility.reason))
