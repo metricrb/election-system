@@ -12,7 +12,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SharedFolder = ReplicatedStorage:WaitForChild("ElectionSystemShared")
 local Types = require(SharedFolder:WaitForChild("Types"))
-local ElectionUI = require(script.Parent:WaitForChild("UI"):WaitForChild("BarExamElectionUI"))
+local ElectionUI = require(script.Parent:WaitForChild("UI"):WaitForChild("ElectionUI"))
 
 local ElectionClient = {}
 local mountedUi: any = nil

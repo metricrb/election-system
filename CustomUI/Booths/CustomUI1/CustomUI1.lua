@@ -1,7 +1,9 @@
 --!strict
 --[[
-	Bar Exam–styled election UI (layout inspired by BarExamPortal / Figma shell).
-	Same controller surface as `ElectionUI.mount` for `ElectionClient`.
+	CustomUI1 — optional booth skin (navy/cream modal, tricolor accent bar).
+	Lives under CustomUI/Booths/CustomUI1 (not loaded by default).
+	Same controller surface as `src/client/UI/ElectionUI.mount`.
+	See README.md in this folder for integration.
 ]]
 
 local Players = game:GetService("Players")
@@ -10,7 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SharedFolder = ReplicatedStorage:WaitForChild("ElectionSystemShared")
 local Types = require(SharedFolder:WaitForChild("Types"))
 
-local BarExamElectionUI = {}
+local CustomUI1 = {}
 
 local TRICOLOR_H = 4
 local HEADER_H = 56
@@ -192,7 +194,7 @@ local function getBallotCandidatesAndDistrict(
 	end
 	if not playerDistrict then
 		warn(
-			"[BarExamElectionUI] playerDistrict missing — cannot match server constituency. Re-fetch config or rejoin."
+			"[CustomUI1] playerDistrict missing — cannot match server constituency. Re-fetch config or rejoin."
 		)
 		return nil, {}
 	end
@@ -208,7 +210,7 @@ local function getBallotCandidatesAndDistrict(
 	return playerDistrict, ballotCandidates
 end
 
-function BarExamElectionUI.mount(
+function CustomUI1.mount(
 	electionConfig: ElectionClientConfig?,
 	callbacks: { submitVote: (Types.Ballot) -> boolean }?
 )
@@ -242,7 +244,7 @@ function BarExamElectionUI.mount(
 	local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "ElectionBarExamUI"
+	screenGui.Name = "ElectionCustomUI1"
 	screenGui.ResetOnSpawn = false
 	screenGui.Enabled = false
 	screenGui.IgnoreGuiInset = true
@@ -1357,4 +1359,4 @@ function BarExamElectionUI.mount(
 	}
 end
 
-return BarExamElectionUI
+return CustomUI1
