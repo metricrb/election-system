@@ -1,6 +1,10 @@
 --!strict
 
--- Shared sorting and text formatting for election results (Cmdr + SurfaceGui board).
+--[=[
+	@class ResultsPresentation
+
+	Shared sorting and text formatting for election results (Cmdr + SurfaceGui board).
+]=]
 
 local Types = require(script.Parent.Types)
 local Settings = require(script.Parent.Parent.Settings)
@@ -70,6 +74,8 @@ end
 
 --[=[
 	@function sortedRowsForConstituency
+	@within ResultsPresentation
+
 	Like `sortedRows`, but only candidates standing in the given constituency (policy tag `constituency:<districtId>`).
 ]=]
 function sortedRowsForConstituency(
@@ -102,6 +108,8 @@ end
 
 --[=[
 	@function constituencyMetaLine
+	@within ResultsPresentation
+
 	Human-readable line: ballots cast; registered roll shown only as legal context (not as % denominator).
 ]=]
 function constituencyMetaLine(districtDisplayName: string, results: Types.ElectionResult): string
