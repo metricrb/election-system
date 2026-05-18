@@ -10,10 +10,12 @@ local Types = require(ReplicatedStorage:WaitForChild("ElectionSystemShared"):Wai
 export type ElectionConfig = {
 	votingMethod: Types.VotingMethod,
 	governmentType: Types.GovernmentType?,
+	seatSystem: Types.SeatSystem?,
 	ui: Types.UiConfig,
 	seats: number,
 	parties: { Types.Party },
 	candidates: { Types.Candidate },
+	districts: { Types.District }?,
 }
 
 local ElectionUI = {}
@@ -173,6 +175,52 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		return false
 	end
 
+	local function constituencyIdFromCandidate(cand: Types.Candidate): string?
+		for _, tag in ipairs(cand.policyTags) do
+			local prefix = "constituency:"
+			if string.sub(tag, 1, #prefix) == prefix then
+				return string.sub(tag, #prefix + 1)
+			end
+		end
+		return nil
+	end
+
+	local districtsList = config.districts
+	local ballotCandidates: { Types.Candidate }
+	local playerDistrict: Types.District? = nil
+	if districtsList and #districtsList > 0 then
+		local cfgAny = config :: any
+		playerDistrict = cfgAny.playerDistrict
+		local explicit = Players.LocalPlayer:GetAttribute("DistrictId")
+		if type(explicit) ~= "string" then
+			explicit = Players.LocalPlayer:GetAttribute("ElectionDistrictId")
+		end
+		if type(explicit) == "string" then
+			for _, d in ipairs(districtsList) do
+				if d.districtId == explicit then
+					playerDistrict = d
+					break
+				end
+			end
+		end
+		if not playerDistrict then
+			warn("[ElectionUI] playerDistrict missing from server — ballot list not scoped to a real constituency.")
+			playerDistrict = nil
+			ballotCandidates = {}
+		else
+			local did = playerDistrict.districtId
+			ballotCandidates = {}
+			for _, c in ipairs(config.candidates) do
+				if constituencyIdFromCandidate(c) == did then
+					table.insert(ballotCandidates, c)
+				end
+			end
+		end
+	else
+		ballotCandidates = table.clone(config.candidates)
+	end
+
+	local wardBannerHeight = if playerDistrict then 0.08 else 0
 	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local scope = Fusion.scoped(Fusion)
 	local function New(className: string)
@@ -492,13 +540,41 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		Visible = false,
 	}
 
+	New("TextLabel") {
+		Parent = ballotVoteFrame,
+		Name = "WardBanner",
+		BackgroundColor3 = Theme.Muted,
+		BackgroundTransparency = 0.65,
+		Position = UDim2.fromScale(0.03, 0.02),
+		Size = UDim2.fromScale(0.94, wardBannerHeight),
+		Visible = playerDistrict ~= nil,
+		Font = Enum.Font.GothamMedium,
+		Text = if playerDistrict
+			then ("Your constituency: %s"):format(playerDistrict.name)
+			else "",
+		TextColor3 = Theme.Foreground,
+		TextScaled = true,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0,
+		[Children] = {
+			New("UICorner") {
+				CornerRadius = UDim.new(0, 8),
+			},
+			New("UIPadding") {
+				PaddingLeft = UDim.new(0, 10),
+				PaddingRight = UDim.new(0, 10),
+			},
+		},
+	}
+
 	-- Dual columns
 	local dualGrid = New("Frame") {
 		Parent = ballotVoteFrame,
 		Name = "DualGrid",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromScale(0, 0),
-		Size = UDim2.new(1, 0, 0.82, 0),
+		Position = if playerDistrict then UDim2.fromScale(0, 0.11) else UDim2.fromScale(0, 0),
+		Size = if playerDistrict then UDim2.new(1, 0, 0.71, 0) else UDim2.new(1, 0, 0.82, 0),
 		Visible = isDualBallot(config.votingMethod),
 	}
 
@@ -585,8 +661,8 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		Parent = ballotVoteFrame,
 		Name = "FPTPList",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromScale(0.03, 0.06),
-		Size = UDim2.fromScale(0.94, 0.76),
+		Position = if playerDistrict then UDim2.fromScale(0.03, 0.12) else UDim2.fromScale(0.03, 0.06),
+		Size = if playerDistrict then UDim2.fromScale(0.94, 0.68) else UDim2.fromScale(0.94, 0.76),
 		ScrollBarThickness = 6,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		Visible = not isDualBallot(config.votingMethod),
@@ -663,7 +739,7 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 	}
 
 	-- Populate dual columns
-	for _, cand in ipairs(config.candidates) do
+	for _, cand in ipairs(ballotCandidates) do
 		local pid = cand.partyId or ""
 		local p = findParty(config.parties, pid)
 		local partyName = if p then p.name else "—"
@@ -808,7 +884,7 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		end)
 	end
 
-	for _, cand in ipairs(config.candidates) do
+	for _, cand in ipairs(ballotCandidates) do
 		local pid = cand.partyId or ""
 		local p = findParty(config.parties, pid)
 		local partyName = if p then p.name else "—"
@@ -1043,7 +1119,7 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		end
 		local filter = Fusion.peek(browseFilterParty)
 		local q = string.lower(Fusion.peek(browseQuery))
-		for _, cand in ipairs(config.candidates) do
+		for _, cand in ipairs(ballotCandidates) do
 			local p = cand.partyId
 			if filter == "all" or p == filter then
 				local pObj = if p then findParty(config.parties, p) else nil
@@ -1121,6 +1197,9 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 	end)
 
 	local function ballotIsValid(): boolean
+		if #ballotCandidates == 0 then
+			return false
+		end
 		if isDualBallot(config.votingMethod) then
 			return Fusion.peek(selectedLocal) ~= nil and Fusion.peek(selectedParty) ~= nil
 		end
@@ -1270,7 +1349,7 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 			local cid = Fusion.peek(selectedLocal) :: string
 			local pid = Fusion.peek(selectedParty) :: string
 			local c = nil
-			for _, x in ipairs(config.candidates) do
+			for _, x in ipairs(ballotCandidates) do
 				if x.candidateId == cid then
 					c = x
 					break
@@ -1288,13 +1367,14 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 		else
 			local cid = Fusion.peek(selectedFptp) :: string
 			local c = nil
-			for _, x in ipairs(config.candidates) do
+			for _, x in ipairs(ballotCandidates) do
 				if x.candidateId == cid then
 					c = x
 					break
 				end
 			end
-			confirmText.Text = string.format("Your choice: %s", c and c.name or "?")
+			local ward = if playerDistrict then ("\nConstituency: %s"):format(playerDistrict.name) else ""
+			confirmText.Text = string.format("Your choice: %s%s", c and c.name or "?", ward)
 		end
 	end)
 
@@ -1606,7 +1686,7 @@ function ElectionUI.mount(electionConfig: ElectionConfig?, callbacks: { submitVo
 				Position = UDim2.new(0.13, 0, 0.5, 0),
 				Size = UDim2.new(0.45, 0, 0.45, 0),
 				Font = Enum.Font.Gotham,
-				Text = string.format("%d votes", row.votes),
+				Text = string.format("%.1f%% of votes cast", pct),
 				TextColor3 = Theme.MutedForeground,
 				TextSize = 13,
 				TextXAlignment = Enum.TextXAlignment.Left,

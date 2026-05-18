@@ -85,7 +85,7 @@ local function setupVotingBooth(part: Part)
 		end
 
 		ElectionSystem:hydrateVoteFromDataStore(player)
-		if ElectionSystem:getStore():hasVoted(tostring(player.UserId)) then
+		if ElectionSystem:getStore():hasVoted(tostring(player.UserId)) and not ElectionSystem.Settings.allowVoteReplacement then
 			local alreadyVotedEvent = remotes:FindFirstChild("AlreadyVoted")
 			if alreadyVotedEvent and alreadyVotedEvent:IsA("RemoteEvent") then
 				alreadyVotedEvent:FireClient(player)

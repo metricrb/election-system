@@ -11,7 +11,26 @@ return function()
 			it("runs " .. methodName .. " without errors", function()
 				local module = require(game:GetService("ServerScriptService").ElectionSystem.Modules.VotingMethods[methodName])
 				local config = makeConfig(methodName)
-				local ballots = {
+			local ballots = if methodName == "TwoRound" or methodName == "IRV" or methodName == "Condorcet" or methodName == "Borda"
+				then
+					{
+						{
+							{ candidateId = "candidate_1", rank = 1 },
+							{ candidateId = "candidate_2", rank = 2 },
+							{ candidateId = "candidate_3", rank = 3 },
+						},
+						{
+							{ candidateId = "candidate_2", rank = 1 },
+							{ candidateId = "candidate_3", rank = 2 },
+							{ candidateId = "candidate_1", rank = 3 },
+						},
+						{
+							{ candidateId = "candidate_1", rank = 1 },
+							{ candidateId = "candidate_3", rank = 2 },
+							{ candidateId = "candidate_2", rank = 3 },
+						},
+					}
+				else {
 					{ { candidateId = "candidate_1", rank = 1, score = 5, approved = true } },
 					{ { candidateId = "candidate_2", rank = 1, score = 3, approved = true } },
 					{ { candidateId = "candidate_1", rank = 1, score = 4, approved = true } },

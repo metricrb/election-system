@@ -123,20 +123,85 @@ function ResultCalculator.validateBallot(ballot: Types.Ballot): { valid: boolean
 	return method.validateBallot(ballot, Settings)
 end
 
-function ResultCalculator.calculate(votingMethod: string, ballots: { Types.Ballot }, store: Store): Types.ElectionResult
+-- Vote-share values from method modules are mixed: some are raw counts / points before this step.
+-- Exposed `voteShare` is **percentage of ballots** for counting methods (incl. FPTP / Approval / Cumulative),
+-- Borda as % of points, Score/STAR unchanged (method-specific scale).
+local function normalizedVoteShareForResult(
+	votingMethod: string,
+	share: { [string]: number },
+	ballotsCast: number
+): { [string]: number }
+	if next(share) == nil then
+		return share
+	end
+	if votingMethod == "Score" or votingMethod == "STAR" then
+		return share
+	end
+	if votingMethod == "FPTP" or votingMethod == "Approval" or votingMethod == "Cumulative" then
+		if ballotsCast > 0 then
+			local out: { [string]: number } = {}
+			for id, v in pairs(share) do
+				out[id] = (v / ballotsCast) * 100
+			end
+			return out
+		end
+		return share
+	end
+
+	local sum = 0
+	for _, v in pairs(share) do
+		sum += v
+	end
+	if sum <= 0 then
+		return share
+	end
+
+	if votingMethod == "Borda" then
+		local out: { [string]: number } = {}
+		for id, v in pairs(share) do
+			out[id] = (v / sum) * 100
+		end
+		return out
+	end
+
+	if ballotsCast > 0 then
+		local out: { [string]: number } = {}
+		for id, v in pairs(share) do
+			out[id] = (v / ballotsCast) * 100
+		end
+		return out
+	end
+
+	return share
+end
+
+function ResultCalculator.calculate(
+	votingMethod: string,
+	ballots: { Types.Ballot },
+	store: Store,
+	countContext: Types.ResultCountContext?
+): Types.ElectionResult
 	local method = METHODS[votingMethod]
 	if not method then
 		error("Unknown voting method: " .. votingMethod)
 	end
 
-	local winnerResult = method.calculateWinner(ballots, Settings)
+	local winnerResult = method.calculateWinner(ballots, Settings, countContext)
+
+	local eligibleVoters = #Settings.candidates
+	local rh: any = winnerResult.roundHistory
+	if type(rh) == "table" and type(rh.registeredVoters) == "number" and rh.registeredVoters > 0 then
+		eligibleVoters = rh.registeredVoters
+	end
+
+	local share = normalizedVoteShareForResult(votingMethod, winnerResult.voteShare, #ballots)
 
 	return {
 		phase = "ResultsOut",
 		votesRecorded = #ballots,
-		eligibleVoters = #Settings.candidates,
+		eligibleVoters = eligibleVoters,
 		winner = winnerResult.winner,
-		voteShare = winnerResult.voteShare,
+		voteShare = share,
 		seats = nil,
 		coalition = nil,
 		roundHistory = winnerResult.roundHistory,
@@ -152,9 +217,32 @@ function ResultCalculator.calculateByDistrict(votingMethod: string, voteRecords:
 		for _, vote in ipairs(districtVotes) do
 			table.insert(ballots, vote.ballot)
 		end
-		resultsByDistrict[district.districtId] = ResultCalculator.calculate(votingMethod, ballots, store)
+		resultsByDistrict[district.districtId] = ResultCalculator.calculate(votingMethod, ballots, store, { districtId = district.districtId })
 	end
 	return resultsByDistrict
+end
+
+--[=[
+	@function mergeCompleteDistrictResults
+	@within ResultCalculator
+
+	Ensures every district in `Settings.districts` has an entry (e.g. after Settings grew, or stale cached `districtResults`).
+	Mutates `districtResults` in place.
+]=]
+function ResultCalculator.mergeCompleteDistrictResults(
+	districtResults: { [string]: Types.ElectionResult },
+	votingMethod: string,
+	store: Store,
+	nationalPhase: Types.ElectionPhase
+): ()
+	for _, d in ipairs(Settings.districts) do
+		if not districtResults[d.districtId] then
+			local dr = ResultCalculator.calculate(votingMethod, {}, store, { districtId = d.districtId })
+			local mutable = dr :: any
+			mutable.phase = nationalPhase
+			districtResults[d.districtId] = dr
+		end
+	end
 end
 
 return ResultCalculator

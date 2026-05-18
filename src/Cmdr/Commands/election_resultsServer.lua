@@ -1,10 +1,10 @@
-return function(context)
+return function(_context)
+	local electionRoot = script.Parent.Parent.Parent
+	local ResultsPresentation = require(electionRoot.Modules.ResultsPresentation)
 	local electionManager = require(script.Parent.Parent.ElectionManagerRequire)()
-	local results = electionManager:getResults()
-	if not results then
-		return "No results available yet."
-	end
-	context:Reply("Election results fetched. See output for full table.")
-	print("[Cmdr] election_results", results)
-	return "Results printed."
+	-- Recalculate from DataStore-backed profiles + in-memory store (not stale session-only cache).
+	local results = electionManager:calculateResults(false)
+	local text = ResultsPresentation.formatText(results, electionManager.Settings.candidates)
+	print("[Cmdr] election_results\n" .. text)
+	return text
 end

@@ -55,13 +55,39 @@ function CmdrSetup.register(electionManager)
 
 	Cmdr.Registry:RegisterHook("AfterRun", function(context)
 		if context.Name == "election_chart" then
-			local modeArg = context.Arguments[1]
-			if modeArg and modeArg.Value then
-				chartMode = modeArg.Value
+			-- Cmdr ArgumentContext uses :GetValue(), not .Value; Response is the server return (normalized mode).
+			local newMode: string? = nil
+			local resp = context.Response
+			if type(resp) == "string" then
+				local r = string.lower(resp :: string)
+				if r == "bar" or r == "pie" then
+					newMode = r
+				end
+			end
+			if not newMode then
+				local arg1 = context:GetArgument(1)
+				if arg1 then
+					local v = arg1:GetValue()
+					if type(v) == "string" then
+						local r = string.lower(v)
+						if r == "bar" or r == "pie" then
+							newMode = r
+						end
+					end
+				end
+			end
+			if not newMode and type(context.RawArguments) == "table" and context.RawArguments[1] then
+				local r = string.lower(tostring(context.RawArguments[1]))
+				if r == "bar" or r == "pie" then
+					newMode = r
+				end
+			end
+			if newMode then
+				chartMode = newMode
 				chartModeChanged:fire()
 			end
 		elseif context.Name == "election_reset" then
-			electionManager:getStore():clear()
+			electionManager:resetAllVoteDataForCmd()
 		end
 	end)
 end

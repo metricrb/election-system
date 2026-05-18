@@ -83,6 +83,13 @@ export type CmdrConfig = {
 	adminMinRank: number,
 }
 
+-- Cross-server vote ledger (Standard DataStore) — full tallies without loading every profile on one machine.
+export type GlobalVoteLedgerConfig = {
+	enabled: boolean,
+	-- `DataStoreService:GetDataStore(name)`; one key per `countryId` holds `{ votes = { [userId] = VoteRecord } }`.
+	dataStoreName: string?,
+}
+
 -- Discord webhook (server-only admin log channel; webhook URL never sent to clients)
 export type DiscordWebhookConfig = {
 	enabled: boolean,
@@ -99,6 +106,14 @@ export type UiConfig = {
 	placeholderAvatarId: string,
 	accentColour: { r: number, g: number, b: number },
 	electionTitle: string,
+}
+
+-- Two-round counting style (RegisteredRoll uses registered-voter thresholds per district)
+export type TwoRoundStyle = "Classic" | "RegisteredRoll"
+
+-- Passed when counting a single district (RegisteredRoll needs registered voter roll per district)
+export type ResultCountContext = {
+	districtId: string?,
 }
 
 -- Master election configuration
@@ -119,6 +134,8 @@ export type ElectionConfig = {
 	closeAt: number,
 
 	clearPlayerVoteOnJoin: boolean,
+	-- When true, a player may submit again while polls are open; latest ballot replaces the prior (store, profile, global ledger).
+	allowVoteReplacement: boolean,
 
 	eligibility: EligibilityConfig,
 	altDetection: AltDetectionConfig,
@@ -126,6 +143,15 @@ export type ElectionConfig = {
 	parties: { Party },
 	candidates: { Candidate },
 	districts: { District },
+
+	-- TwoRound: Classic = % of votes cast vs runoffThreshold; RegisteredRoll = absolute majority + % of registered roll (R1), qualifier thresholds (R2)
+	twoRoundStyle: TwoRoundStyle?,
+	-- Registered voters (inscrits): at-large / no districts
+	registeredVoters: number?,
+	-- Registered voters per districtId (required for RegisteredRoll style with districts)
+	registeredVotersByDistrict: { [string]: number }?,
+
+	globalVoteLedger: GlobalVoteLedgerConfig,
 
 	cmdr: CmdrConfig,
 	discord: DiscordWebhookConfig,
@@ -181,6 +207,8 @@ export type ElectionResult = {
 
 	roundHistory: { any }?,
 	calculatedAt: number,
+	-- Populated when `Settings.districts` is non-empty: per–district-id tallies (same shape as national).
+	districtResults: { [string]: ElectionResult }?,
 }
 
 -- Eligibility check result

@@ -25,8 +25,12 @@ local function makeConfig(method: Types.VotingMethod): Types.ElectionConfig
 			{ candidateId = "candidate_3", userId = "3", partyId = "party_a", name = "C", bio = "", policyTags = {} },
 		},
 		districts = {},
+		twoRoundStyle = "Classic",
+		registeredVoters = nil,
+		registeredVotersByDistrict = nil,
 		cmdr = { adminGroupId = 0, adminMinRank = 255 },
 		clearPlayerVoteOnJoin = false,
+		allowVoteReplacement = false,
 		discord = {
 			enabled = false,
 			webhookUrl = "",

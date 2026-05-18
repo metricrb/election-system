@@ -1,6 +1,6 @@
 [package]
 name = "metricsrbx/election-system"
-version = "1.6.0"
+version = "1.6.1"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
